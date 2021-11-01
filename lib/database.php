@@ -20,7 +20,7 @@ class DB{
      * $databaseName Tên Database các bạn muốn kết nối
      * @var string
      */
-    private $databaseName = 'test-mysql';
+    private $databaseName = 'doanPHP';
     /**
      * $charset Dạng ký tự
      * @var string
@@ -89,6 +89,7 @@ class DB{
         }
         $sql = 'INSERT INTO ' .$table . '(' . trim($keys,',') . ') VALUES (' . trim($values,',') . ')';
         return mysqli_query($this->conn,$sql);
+
     }
     /**
      * update sửa dữ liệu

@@ -3,9 +3,9 @@ namespace App\Models;
 include_once('lib/database.php');
 use Database\DB;
 
-class UserModel {
+class BlogModel {
     public $conn;
-    private $table = 'tb_cate';
+    private $table = 'tb_blog';
     public function __construct(){
         $this->conn = new DB();
     }
@@ -22,6 +22,6 @@ class UserModel {
         return $this->conn->update($this->table,$data,$id);
     }
     public function delete($id){
-        return $conn->delete($this->table,$id);
+        return $this->conn->delete($this->table,$id);
     }
 }

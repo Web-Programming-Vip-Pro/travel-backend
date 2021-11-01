@@ -14,8 +14,11 @@ class BaseController{
             //  var_dump($content);
              // Sau khi có kết quả đã được lưu vào biến
         }else{
-            header('Location: index.php?controller=pages&action=error');
+            header('Location: /error');
         }
+    }
+    function redirect($url){
+        return header('Location:'.$url);
     }
 
 }

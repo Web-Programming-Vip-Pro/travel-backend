@@ -26,14 +26,13 @@ class Route {
             'action' => $action,
             'params' => $params[2]
         ];
-        var_dump($route);
         array_push($this->__routes,$route);
     }
     // route method get
     public function get(string $url,$action){
         $this->__request($url , 'GET', $action);
     }
-    // route method pod
+    // route method post
     public function post($url,$action){
         $this->__request($url, 'POST', $action);
     }   
