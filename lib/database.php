@@ -229,7 +229,7 @@ class DB{
         if($result = mysqli_query($this->conn,$sql))
         {
             if($return === true){
-                while ($row = mysqli_fetch_array($result)) {
+                while ($row = mysqli_fetch_object($result)) {
                     $data[] = $row;
                 }
                 mysqli_free_result($result);

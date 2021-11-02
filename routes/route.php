@@ -5,6 +5,8 @@ $router->post("/user/add",'userController@postAdd');
 $router->get("/user/edit.*?",'userController@getEdit');
 $router->post("/user/edit.*?",'userController@postEdit');
 $router->get("/user/delete.*?",'userController@delete');
+$router->post('/login','userController@login');
+$router->get('/logout','userController@logout');
 // route group "/country"
 $router->get("/country",'countryController@index');
 $router->post("/country/add",'countryController@postAdd');

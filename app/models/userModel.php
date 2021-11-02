@@ -16,7 +16,7 @@ class UserModel {
         return $this->conn->getRowArray($this->table,$id);
     }
     public function getByEmail ($email){
-        $where = 'email ='.$email;
+        $where = 'email= "'.$email.'"';
         $sql = 'SELECT * FROM '. $this->table . ' WHERE '. $where;
         return $this->conn->query($sql);
     }
