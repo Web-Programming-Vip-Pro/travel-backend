@@ -20,5 +20,12 @@ class BaseController{
     function redirect($url){
         return header('Location:'.$url);
     }
+    function status($code,$data = null){
+        http_response_code($code);
+        echo json_encode(array(
+            'status'    => $code,
+            'data'      => $data
+        ));
+    }
 
 }

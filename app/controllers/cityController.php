@@ -4,13 +4,17 @@ namespace App\Controllers;
 
 include_once('app/models/cityModel.php');
 include_once('core/http/Container.php');
+require_once('app/validators/cityValidate.php');
 
 use App\Models\CityModel;
 use Core\Http\BaseController;
+use App\Validator\CityValidate;
 class cityController extends BaseController{
     private $city;
+    private $validate;
     public function __construct(){
         $this->city = new CityModel();
+        $this->validate = new CityValidate();
     }
     public function index()
     {
@@ -24,9 +28,7 @@ class cityController extends BaseController{
     public function postAdd(){
         $req = $_POST;
         $msg = [];
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đất nước');
-        }
+        
         if(count($msg) > 0){
             echo "Một số trường chưa được điền đầy đủ";
             return;

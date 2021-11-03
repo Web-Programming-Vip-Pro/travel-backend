@@ -4,13 +4,17 @@ namespace App\Controllers;
 
 include_once('app/models/countryModel.php');
 include_once('core/http/Container.php');
+require_once('app/validators/countryValidate.php');
 
 use App\Models\CountryModel;
 use Core\Http\BaseController;
+use App\Validator\CountryValidate;
 class countryController extends BaseController{
     private $country;
+    private $validate;
     public function __construct(){
         $this->country = new CountryModel();
+        $this->validate = new CountryValidate();
     }
     public function index()
     {
@@ -23,10 +27,7 @@ class countryController extends BaseController{
     }
     public function postAdd(){
         $req = $_POST;
-        $msg = [];
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đất nước');
-        }
+        $msg = $this->validate->add($req);
         if(count($msg) > 0){
             echo "Một số trường chưa được điền đầy đủ";
             return;
@@ -62,7 +63,7 @@ class countryController extends BaseController{
     public function postEdit(){
         $req = $_POST;
         $id = (int)$_REQUEST['id'];
-        $msg =[];
+        $msg = $this->validate->add($req);
         if($id ==0){
             echo " Vui lòng nhập id";
             return;

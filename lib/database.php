@@ -1,26 +1,27 @@
 <?php
 namespace Database;
+require_once('config/config.php');
 class DB{
    /**
      * $host Chứa thông tin host
      * @var string
      */
-    private $host = 'localhost';
+    private $host = DB_HOST;
     /**
      * $username Tài khoản truy cập mysql
      * @var string
      */
-    private $username = 'root';
+    private $username = DB_USER;
     /**
      * $password Mật khẩu truy cập sql
      * @var string
      */
-    private $password = '05052000';
+    private $password = DB_PASSWORD;
     /**
      * $databaseName Tên Database các bạn muốn kết nối
      * @var string
      */
-    private $databaseName = 'doanPHP';
+    private $databaseName = DB_TABLE;
     /**
      * $charset Dạng ký tự
      * @var string

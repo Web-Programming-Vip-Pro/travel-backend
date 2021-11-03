@@ -5,20 +5,24 @@ namespace App\Controllers;
 include_once('app/models/userModel.php');
 include_once('core/http/Container.php');
 include_once('app/middleware/middleware.php');
+require_once('app/validators/userValidate.php');
 require_once('vendor/autoload.php');
 use \Firebase\JWT\JWT; 
 use App\Models\UserModel;
 use Core\Http\BaseController;
 use App\Middleware\Middleware;
+use App\Validator\UserValidate;
 
 class userController extends BaseController
 {
     private $user;
     private $middleware;
+    private $validate;
     public function __construct()
     {
         $this->user = new UserModel();
-        $this-> middleware = new Middleware();
+        $this->middleware = new Middleware();
+        $this->validate = new UserValidate();
        
     }
     public function index()
@@ -32,42 +36,24 @@ class userController extends BaseController
             $msg = ['Not Login Redirect to page Login'];
             return;
         }  
-        if($role_login != 0){
+        if($role_login == 2){
             echo "User  not permit to access and redirect to login";
             $msg = ['User  not permit to access and redirect to login'];
             return;
         }  
         // when accessed,get data users
         $result = $this->user->get();
-        $result = json_encode($result);
-        print_r($result);
+        return $this->status(200,$result);
     }
     public function postAdd()
     {   
-        if(!isset($this->cookie)){
-            echo("Return login");
-            return;
-        }
         $req = $_POST;
-        $msg = [];
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đầy đủ');
-        }
-        if(!isset($req['email'])){
-            array_push($msg,'Vui lòng điền email');
-        }
-        if(!isset($req['password'])){
-            array_push($msg,'Vui lòng điền password');
-        }
-        if(isset($req['password']) && $req['password'] != $req['repassword']){
-            array_push($msg,'Mật khẩu nhập lại không chính xác');
-        }
-        if(!isset($req['role'])){
-            array_push($msg,'Vui lòng chọn role');
-        }
+        $msg = $this->validate->add($req);
         if(count($msg) >0){
-            echo "Một vài trường chưa được điền đầy đủ";
-            return;
+            $data=[
+                'msg'       =>'Some field not fill in'
+            ];
+            return $this->status(422,$data);
         }
         $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
         $data =[
@@ -85,35 +71,44 @@ class userController extends BaseController
         ];
         $resultByEmail = $this->user->getByEmail($data['email']);
         if(count($resultByEmail)>0){
-            echo "Tài khoản đã tồn tại";
-            return;
+            $data=[
+                'localtion' => 'redirect to add user page',
+                'msg'       =>'Tài khoản đã tồn tại'
+            ];
+            return $this->status(301,$data);
         }
         $result = $this->user->create($data);
         if($result != null){
-            print_r("Add user success");
-            return ;
+            $data=[
+                'localtion' => 'redirect to list user page',
+                'msg'       =>'add user to database success'
+            ];
+            return $this->status(301,$data);
         }
-        echo "Add user error";
-        return ;
+        $data=[
+            'msg'       =>'add user to database fail'
+        ];
+        return $this->status(500,$data);
     }
     public function getEdit()
     {   
-        if(!isset($this->cookie)){
-            echo("Return login");
-            return;
-        }
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            echo "Id khong co";
-            return;
+            $data=[
+                'localtion' => 'Not Foung page',
+                'msg'       =>'id not fill in'
+            ];
+            return $this->status(404,$data);
         }
         $result = $this->user->get($id);
         if($result == null){
-            echo "Id khong chinh xac";
-            return;
+            $data=[
+                'localtion' => 'Not Foung page',
+                'msg'       =>'id not exactly'
+            ];
+            return $this->status(404,$data);
         }
-        print_r($result);
-        return;
+        return $this->status(200,$result);
     }
     /*
     ***
@@ -122,28 +117,14 @@ class userController extends BaseController
     */
     public function postEdit()
     {
-        if(!isset($this->cookie)){
-            echo("Return login");
-            return;
-        }
         $req = $_POST;
-        $msg = [];
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đầy đủ');
-        }
-        if(!isset($req['email'])){
-            array_push($msg,'Vui lòng điền email');
-        }
-        if(isset($req['password']) && $req['password'] != $req['repassword']){
-            array_push($msg,'Mật khẩu nhập lại không chính xác');
-        }
-        if(!isset($req['role'])){
-            array_push($msg,'Vui lòng chọn role');
-        }
+        $msg = $this->validate->edit(req);
         // validator
         if(count($msg) >0){
-            echo "Một vài trường chưa được điền đầy đủ";
-            return;
+            $data=[
+                'msg'       =>'Some field not fill in'
+            ];
+            return $this->status(422,$data);
         }
         // data req
         $data =[
@@ -166,38 +147,46 @@ class userController extends BaseController
         $id = (int)$_REQUEST['id'];
         // check param có id không
         if($id == 0){
-            echo "Vui lòng nhập Id";
-            return;
+            $data=[
+                'localtion' => 'Not Foung page',
+                'msg'       =>'id not fill in'
+            ];
+            return $this->status(404,$data);
         }
         $resultGetById = $this->user->get($id);
         // check user co ton tai khong ?
         if($resultGetById == null){
-            echo "Id Không tồn tại";
-            return;
+            $data=[
+                'localtion' => 'Not Foung page',
+                'msg'       =>'id not exactly'
+            ];
+            return $this->status(404,$data);
         }
         // check email đã tồn tại chưa ?
         if($resultGetById['email' != $data['email']]){
             $resultByEmail = $this->user->getByEmail($data['email']);
             echo $resultByEmail;
             if(count($resultByEmail)>0){
-                echo "Tài khoản đã tồn tại";
-                return;
+                $data=[
+                    'msg'       =>'user existed'
+                ];
+                return $this->status(200,$data);
             }
         }
         $result = $this->user->update($id,$data);
-        if($result == null){
-            print_r("Add user success");
-            return ;
+        if($result != null){
+            $data=[
+                'msg'       =>'update user success'
+            ];
+            return $this->status(200,$data);
         }
-        echo "Add user error";
-        return ;
+        $data=[
+            'msg'       =>'update user error'
+        ];
+        return $this->status(500,$data);
     }
     public function delete()
     {
-        if(!isset($this->cookie)){
-            echo("Return login");
-            return;
-        }
         $id = (int)$_REQUEST['id'];
         if($id == 0){
             echo "Vui lòng nhập Id";
@@ -216,13 +205,7 @@ class userController extends BaseController
         define('SECRET_KEY','Your-Secret-Key');  /// secret key can be a random string and keep in secret from anyone
         define('ALGORITHM','HS512');  
         $req = $_POST;
-        $msg = [];
-        if(!isset($req['email'])){
-            array_push($msg,'Vui long nhap email');
-        }
-        if(!isset($req['password'])){
-            array_push($msg,'Vui long nhap password');
-        }
+        $msg = $this->validate->login($req);
         if(count($msg) > 0 ){
             echo("mot vai truong chua dien");
             return;
@@ -244,7 +227,6 @@ class userController extends BaseController
          * 
          * 
          */
-        // echo (random_bytes(32));
         $tokenId    = base64_encode(random_bytes(32));
         $issuedAt   = time();
         $notBefore  = $issuedAt + 10;  //Adding 10 seconds
@@ -272,31 +254,27 @@ class userController extends BaseController
                 $secretKey, // The signing key
                 ALGORITHM 
             ); 
-        // set token 
-        setcookie('login',$jwt,$expire,'/');
-        /**
-         * 
-         * 
-         */
-       
-        // define role
         $role = $resultByEmail[0]->role;
         if($role == 0 || $role == 1){
-            echo "Return page admin";
-            return;
+            $data=[
+                'status'    =>'success',
+                'jwt'       => $jwt,
+                'msg'       =>"Return page admin"
+            ];
+            return $this->status(200,$data);
         }
-        echo "Return home page";
-        return;
+        $data=[
+            'status'    =>'success',
+            'jwt'       => $jwt,
+            'msg'       =>"Return page admin"
+        ];
+        return $this->status(200,$data);
     }
-    public function logout(){
-        // if(!isset($this->cookie)){
-        //     echo("Return login");
-        //     return;
-        // }
-        unset($_COOKIE['login']);
-        setcookie('login', '', time() - 3600, '/',$serverName); 
-        echo "Logout success";
-        return;
-    }
+    // public function logout(){
+    //     unset($_COOKIE['login']);
+    //     setcookie('login', '', time() - 3600, '/',$serverName); 
+    //     echo "Logout success";
+    //     return;
+    // }
 }
  
