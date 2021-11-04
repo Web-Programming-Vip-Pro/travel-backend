@@ -8,10 +8,17 @@ define('PATH_ROOT', __DIR__);
 // load class Route
 // $filepath = realpath (dirname(__FILE__));
 // require_once($filepath."/lib/database.php");
+require_once('vendor/autoload.php');
+
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__)->safeLoad();
 require_once 'core/http/Route.php';
 require_once 'lib/database.php';
+
 use Core\Http\Route;
 use Database\DB;
+
 $router = new Route();
 $DB = new DB();
 require  'routes/route.php';
@@ -21,4 +28,3 @@ $request_url = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
 $method_url = !empty($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
 // map URL
 $router->map($request_url, $method_url);
-
