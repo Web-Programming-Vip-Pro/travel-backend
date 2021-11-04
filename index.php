@@ -1,5 +1,5 @@
 <?php
-
+header("Access-Control-Allow-Origin: *");
 define('PATH_ROOT', __DIR__);
 // Autoload class trong PHP
 // spl_autoload_register(function (string $class_name) {
