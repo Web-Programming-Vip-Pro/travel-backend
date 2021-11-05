@@ -6,6 +6,7 @@ require_once('app/models/userModel.php');
 require_once('core/http/Container.php');
 require_once('app/middleware/middleware.php');
 require_once('app/validators/userValidate.php');
+require_once('app/services/authenticationService.php');
 require_once('vendor/autoload.php');
 require_once('storage/helper.php');
 use \Firebase\JWT\JWT; 
@@ -13,6 +14,7 @@ use App\Models\UserModel;
 use Core\Http\BaseController;
 use App\Middleware\Middleware;
 use App\Validator\UserValidate;
+use App\Services\AuthenticationService;
 use Storage\Helper;
 
 class userController extends BaseController
@@ -27,6 +29,7 @@ class userController extends BaseController
         $this->middleware   = new Middleware();
         $this->validate     = new UserValidate();
         $this->helper       = new Helper();
+        $this->authenticationService = new AuthenticationService();
     }
     public function index()
     {   
@@ -60,7 +63,7 @@ class userController extends BaseController
         return $this->status(200,$msg);
     }
     public function postAdd()
-    {   
+    {
         $req = $_POST;
         $msgs = $this->validate->add($req);
         if(count($msgs) >0){
