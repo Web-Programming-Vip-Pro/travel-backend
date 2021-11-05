@@ -2,28 +2,31 @@
 
 namespace App\Controllers;
 
-include_once('app/models/userModel.php');
-include_once('core/http/Container.php');
-include_once('app/middleware/middleware.php');
+require_once('app/models/userModel.php');
+require_once('core/http/Container.php');
+require_once('app/middleware/middleware.php');
 require_once('app/validators/userValidate.php');
 require_once('vendor/autoload.php');
+require_once('storage/helper.php');
 use \Firebase\JWT\JWT; 
 use App\Models\UserModel;
 use Core\Http\BaseController;
 use App\Middleware\Middleware;
 use App\Validator\UserValidate;
+use Storage\Helper;
 
 class userController extends BaseController
 {
     private $user;
     private $middleware;
     private $validate;
+    private $helper;
     public function __construct()
     {
-        $this->user = new UserModel();
-        $this->middleware = new Middleware();
-        $this->validate = new UserValidate();
-       
+        $this->user         = new UserModel();
+        $this->middleware   = new Middleware();
+        $this->validate     = new UserValidate();
+        $this->helper       = new Helper();
     }
     public function index()
     {   
@@ -32,83 +35,107 @@ class userController extends BaseController
          */
         $role_login = $this->middleware->handleAdmin();
         if($role_login == -1){
-            echo "Not Login Redirect to page Login";
-            $msg = ['Not Login Redirect to page Login'];
-            return;
+            $msg = [
+                'status'    => 'Unauthorized',
+                'msg'       => 'You are not loged in',
+                'data'      => null
+            ];
+            return $this->status(401,$msg);
         }  
         if($role_login == 2){
-            echo "User  not permit to access and redirect to login";
-            $msg = ['User  not permit to access and redirect to login'];
-            return;
+            $msg = [
+                'status'    => 'Unauthorized',
+                'msg'       => 'User  not permit to access and redirect to login',
+                'data'      => null
+            ];
+            return $this->status(401,$msg);
         }  
         // when accessed,get data users
         $result = $this->user->get();
-        return $this->status(200,$result);
+        $msg = [
+            'status'    => 'success',
+            'msg'       => 'Get list users',
+            'data'      => $result
+        ];
+        return $this->status(200,$msg);
     }
     public function postAdd()
     {   
         $req = $_POST;
-        $msg = $this->validate->add($req);
-        if(count($msg) >0){
-            $data=[
-                'msg'       =>'Some field not fill in'
+        $msgs = $this->validate->add($req);
+        if(count($msgs) >0){
+            $msg=[
+                'status'    => 'error',
+                'msg'       => 'Some field not fill in',
+                'data'      => $msgs
             ];
-            return $this->status(422,$data);
+            return $this->status(422,$msg);
         }
         $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
         $data =[
-            "name"  => $req["name"],
-            "email" => $req["email"],
-            "password" => $hashed_password,
-            "bio"   => 'bio',
-            "role"   => 1,
-            "info"   => 'info',
-            "avatar"   => 'avatar',
-            "status_agency"   => 0,
-            "image_cover"   => 'image_cover',
-            "social" => "social",
-            "blocked" => 0,
+            "name"              => $req["name"],
+            "email"             => $req["email"],
+            "password"          => $hashed_password,
+            "bio"               => 'bio',
+            "role"              => 1,
+            "avatar"            => 'avatar',
+            "status_agency"     => 0,
+            "image_cover"       => 'image_cover',
+            "blocked"           => 0,
         ];
+        $data['info'] = $this->helper->jsonEncodeInfo($req);
+        $data['social'] = $this->helper->jsonEncodeSocial($req);
         $resultByEmail = $this->user->getByEmail($data['email']);
         if(count($resultByEmail)>0){
-            $data=[
-                'localtion' => 'redirect to add user page',
-                'msg'       =>'Tài khoản đã tồn tại'
+            $msg=[
+                'status'    =>  'error',
+                'msg'       =>  'User existed',
+                'data'      =>  null
             ];
-            return $this->status(301,$data);
+            return $this->status(500,$msg);
         }
         $result = $this->user->create($data);
-        if($result != null){
-            $data=[
-                'localtion' => 'redirect to list user page',
-                'msg'       =>'add user to database success'
+        if($result == true){
+            $msg=[
+                'status'    =>'Created',
+                'msg'       =>'Add user to database success',
+                'data'      => null
             ];
-            return $this->status(301,$data);
+            return $this->status(201,$msg);
         }
-        $data=[
-            'msg'       =>'add user to database fail'
+        $msg=[
+            'status'    => 'error',
+            'msg'       =>'Add user to database fail',
+            'data'      => null
         ];
-        return $this->status(500,$data);
+        return $this->status(500,$msg);
     }
     public function getEdit()
     {   
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $data=[
-                'localtion' => 'Not Foung page',
-                'msg'       =>'id not fill in'
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not fill in',
+                'data'      => null
             ];
-            return $this->status(404,$data);
+            return $this->status(500,$msg);
         }
         $result = $this->user->get($id);
         if($result == null){
-            $data=[
-                'localtion' => 'Not Foung page',
-                'msg'       =>'id not exactly'
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not existed',
+                'data'      => null
             ];
-            return $this->status(404,$data);
+            return $this->status(500,$msg);
         }
-        return $this->status(200,$result);
+        $msg = [
+            'status'    =>  'success',
+            'msg'       =>  'Get user by id',
+            'data'      => $result
+        ];
+        return $this->status(200,$msg);
     }
     /*
     ***
@@ -118,88 +145,109 @@ class userController extends BaseController
     public function postEdit()
     {
         $req = $_POST;
-        $msg = $this->validate->edit(req);
-        // validator
-        if(count($msg) >0){
-            $data=[
-                'msg'       =>'Some field not fill in'
+        $id = (int)$_REQUEST['id'];
+        // check param có id không
+        if($id == 0){
+            $msg =[
+                'status'    => 'error',
+                'msg'       =>  'Id not filled in',
+                'data'      => null, 
             ];
-            return $this->status(422,$data);
+            return $this->status(500,$msg);
+        }
+        $resultGetById = $this->user->get($id);
+        // check user co ton tai khong ?
+        if($resultGetById == null){
+            $msg=[
+                'status'    => 'error',
+                'msg'       =>  'Id not exactly',
+                'data'      => null, 
+            ];
+            return $this->status(500,$msg);
+        }
+        // validator
+        $msgs = $this->validate->edit($req);
+        if(count($msgs) > 0){
+            $msg=[
+                'status'    => 'error',
+                'msg'       => 'Some field not fill in',
+                'data'      => $msgs
+            ];
+            return $this->status(422,$msg);
         }
         // data req
         $data =[
             "name"  => $req["name"],
             "email" => $req["email"],
-            "password" => $hashed_password,
             "bio"   => $req['bio'],
             "role"   => 1,
-            "info"   => $req['info'],
             "avatar"   => 'avatar',
             "status_agency"   => 0,
             "image_cover"   => 'image_cover',
-            "social" => "social",
             "blocked" => 0,
         ];
+        $data['info'] = $this->helper->jsonEncodeInfo($req);
+        $data['social'] = $this->helper->jsonEncodeSocial($req);
         // nếu có password mới update
-        if(isset($req['password'])){
-            $data['password'] = $req['password'];
-        }
-        $id = (int)$_REQUEST['id'];
-        // check param có id không
-        if($id == 0){
-            $data=[
-                'localtion' => 'Not Foung page',
-                'msg'       =>'id not fill in'
-            ];
-            return $this->status(404,$data);
-        }
-        $resultGetById = $this->user->get($id);
-        // check user co ton tai khong ?
-        if($resultGetById == null){
-            $data=[
-                'localtion' => 'Not Foung page',
-                'msg'       =>'id not exactly'
-            ];
-            return $this->status(404,$data);
+        if(isset($req['password']) && $req['password'] == $req['repassword']){
+            $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
+            $data['password'] = $hashed_password;
         }
         // check email đã tồn tại chưa ?
-        if($resultGetById['email' != $data['email']]){
+        if($resultGetById['email'] != $data['email']){
             $resultByEmail = $this->user->getByEmail($data['email']);
-            echo $resultByEmail;
             if(count($resultByEmail)>0){
-                $data=[
-                    'msg'       =>'user existed'
+                $msg = [
+                    'status'    => 'error',
+                    'msg'       =>  'User existed',
+                    'data'      => null, 
                 ];
-                return $this->status(200,$data);
+                return $this->status(500,$msg);
             }
         }
         $result = $this->user->update($id,$data);
-        if($result != null){
-            $data=[
-                'msg'       =>'update user success'
+        if($result == true){
+            $msg = [
+                'status'    => 'success', 
+                'msg'       => 'Update user success',
+                'data'      => null
             ];
-            return $this->status(200,$data);
+            return $this->status(200,$msg);
         }
-        $data=[
-            'msg'       =>'update user error'
+        $msg = [
+            'status'    => 'error', 
+            'msg'       => 'Update user error',
+            'data'      => null
         ];
-        return $this->status(500,$data);
+        return $this->status(500,$msg);
     }
     public function delete()
     {
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            echo "Vui lòng nhập Id";
-            return;
+            $data=[
+                'status'    => 'error',
+                'msg'       =>  'Id not filled in',
+                'data'      => null, 
+            ];
+            return $this->status(500,$data);
         }
         $resultGetById = $this->user->get($id);
         if($resultGetById == null){
-            echo "Id khong tồn tại";
-            return;
+            $msg = [
+                'status'    => 'error',
+                'msg'       =>  'Id not exactly',
+                'data'      => null, 
+            ];
+            return $this->status(500,$msg);
         }
         $this->user->delete($id);
-        print_r("Delete user success");
-        return ;
+        $msg = [
+            'status'    => 'success',
+            'msg'       =>  'Delete user success',
+            'data'      => null, 
+        ];
+        return $this->status(200,$msg);
     }
     public function login(){
         define('SECRET_KEY','Your-Secret-Key');  /// secret key can be a random string and keep in secret from anyone
@@ -248,6 +296,7 @@ class userController extends BaseController
             ]
         ];
         $secretKey = base64_decode(SECRET_KEY);
+        echo $secretKey;
         /// Here we will transform this array into JWT:
         $jwt = JWT::encode(
                 $payload, //Data to be encoded in the JWT
@@ -256,19 +305,19 @@ class userController extends BaseController
             ); 
         $role = $resultByEmail[0]->role;
         if($role == 0 || $role == 1){
-            $data=[
+            $msg = [
                 'status'    =>'success',
-                'jwt'       => $jwt,
-                'msg'       =>"Return page admin"
+                'msg'       =>"Return page admin",
+                'data'       => $jwt,
             ];
-            return $this->status(200,$data);
+            return $this->status(200,$msg);
         }
-        $data=[
+        $msg = [
             'status'    =>'success',
-            'jwt'       => $jwt,
-            'msg'       =>"Return page admin"
+            'msg'       =>"Return page admin",
+            'data'       => $jwt,
         ];
-        return $this->status(200,$data);
+        return $this->status(200,$msg);
     }
     // public function logout(){
     //     unset($_COOKIE['login']);

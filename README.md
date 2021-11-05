@@ -10,3 +10,17 @@ cd nodejs-file-stucture-express
 
 composer install
 ```
+## **Config apache**
+apache2.conf :
+```bash
+<Directory /var/www/>
+        Options Indexes FollowSymLinks
+        AllowOverride All 
+        Require all granted
+</Directory>
+```
+Linux run terminal to rewrite url <br/>
+```bash
+sudo a2enmod rewrite && sudo service apache2 restart
+```
+

@@ -2,35 +2,11 @@
 namespace Database;
 require_once('config/config.php');
 class DB{
-   /**
-     * $host Chứa thông tin host
-     * @var string
-     */
     private $host = DB_HOST;
-    /**
-     * $username Tài khoản truy cập mysql
-     * @var string
-     */
     private $username = DB_USER;
-    /**
-     * $password Mật khẩu truy cập sql
-     * @var string
-     */
-    private $password = DB_PASSWORD;
-    /**
-     * $databaseName Tên Database các bạn muốn kết nối
-     * @var string
-     */
+    private $password = DB_PASSWORD; 
     private $databaseName = DB_TABLE;
-    /**
-     * $charset Dạng ký tự
-     * @var string
-     */
     private $charset = 'utf8';
-    /**
-     * $conn Lưu trữ lớp kết nối
-     * @var [objetc]
-     */
     private $conn;
     /**
      * __construct Hàm khởi tạo
@@ -55,14 +31,11 @@ class DB{
             mysqli_set_charset($this->conn,$this->charset);
         }
     }
-    /**
-     * disConnect Ngắt kết nối
-     * @return void
-     */
     public function disConnect()
     {
-        if($this->conn)
+        if($this->conn){
             mysqli_close($this->conn);
+        }
     }
     /**
      * error Hiển thị lỗi

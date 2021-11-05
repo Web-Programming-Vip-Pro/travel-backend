@@ -46,16 +46,5 @@ class UserValidate{
         }
         return $msg;
     }       
-    public function login($req){
-        $msg = [];
-        if(!isset($req['email'])){
-            array_push($msg,'Vui long nhap email');
-        }
-        if(!isset($req['password'])){
-            array_push($msg,'Vui long nhap password');
-        }
-        return $msg;
-    }  
-
 }
 ?>

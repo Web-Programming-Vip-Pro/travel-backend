@@ -8,40 +8,12 @@
  */
 class Database
 {
-    /**
-     * $host Chứa thông tin host
-     * @var string
-     */
     private $host = 'localhost';
-    /**
-     * $username Tài khoản truy cập mysql
-     * @var string
-     */
     private $username = 'root';
-    /**
-     * $password Mật khẩu truy cập sql
-     * @var string
-     */
     private $password = '';
-    /**
-     * $databaseName Tên Database các bạn muốn kết nối
-     * @var string
-     */
     private $databaseName = 'vtt_may';
-    /**
-     * $charset Dạng ký tự
-     * @var string
-     */
     private $charset = 'utf8';
-    /**
-     * $conn Lưu trữ lớp kết nối
-     * @var [objetc]
-     */
     private $conn;
-    /**
-     * __construct Hàm khởi tạo
-     * @return void;
-     */
     public function __construct()
     {
         $this->connect();

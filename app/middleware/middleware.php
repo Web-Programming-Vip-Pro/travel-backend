@@ -18,16 +18,17 @@ class Middleware {
         }
         $arr = explode(" ", $authHeader);
         $jwt = $arr[1];
-        $result =JWT::decode(
+        $result = JWT::decode(
             $jwt, //Data to be encoded in the JWT
             $secretKey, // The signing key
             array(ALGORITHM) 
         ); 
+        if(!isset($result)){
+            return -1;
+        }
         return $result->data->role ;
     }
     public function handleUser(){
 
     }
 }
-$middleware = new Middleware();
-$middleware->handleAdmin();

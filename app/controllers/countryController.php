@@ -19,18 +19,19 @@ class countryController extends BaseController{
     public function index()
     {
         $result = $this->country->get();
-        $result = json_encode($result);
-        echo '<pre>';
-        print_r($result);
-        echo '</pre>';
-        return;
+        $data = [
+            'data'  => $result         
+        ];
+        return $this->status(200,$data);
     }
     public function postAdd(){
         $req = $_POST;
         $msg = $this->validate->add($req);
         if(count($msg) > 0){
-            echo "Một số trường chưa được điền đầy đủ";
-            return;
+            $data = [
+                'msg'  => 'Some fielt not fill in'         
+            ];
+            return $this->status(422,$data);
         } 
         $data = [
             'name' => $req['name'],
@@ -72,9 +73,6 @@ class countryController extends BaseController{
         if($resultById == null){
             echo " Id không tồn tại";
             return;
-        }
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đất nước');
         }
         if(count($msg) > 0){
             echo "Một số trường chưa được điền đầy đủ";

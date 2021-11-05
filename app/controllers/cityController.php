@@ -19,60 +19,90 @@ class cityController extends BaseController{
     public function index()
     {
         $result = $this->city->get();
-        $result = json_encode($result);
-        echo '<pre>';
-        print_r($result);
-        echo '</pre>';
-        return;
+        $msgs = [
+            'status'    =>  'success',
+            'msg'       =>  'Get city',
+            'data'      =>  $result
+        ];
+        return $this->status(200,$msgs);
     }
     public function postAdd(){
         $req = $_POST;
-        $msg = [];
-        
-        if(count($msg) > 0){
-            echo "Một số trường chưa được điền đầy đủ";
-            return;
+        $msgs = $this->validate->add($req);
+        if(count($msgs) > 0){
+            $msg = [
+                'status'    =>  'error',
+                'msg'       => "Some fielt not fill in"
+            ];
+            return $this->status(422,$msg);
         } 
         $data = [
-            'name' => $req['name'],
+            'name'          => $req['name'],
+            'country_id'    => $req['country_id'],
+            'description'   => $req['description'],
+            'total_places'  => 0,
+            'image_cover'   => 'image',
         ];
         $result = $this->city->create($data);
         if($result == null){
-            echo "Error add city";
-            return;
+            $msg = [
+                'status'    =>  'error',
+                'msg'   =>  'Error add city'
+            ];
+            return $this->status(500,$msg);
         }
-        echo "Add city success";
-        return;
+        $msg = [    
+            'status'    => ' success',
+            'msg'       => 'Add city success'
+        ]; 
+        return $this->status(200,$msg);
     }  
     public function getEdit(){
         $req = $_POST;
         $id = (int)$_REQUEST['id'];
-        if($id ==0){
-            echo " Vui lòng nhập id";
-            return;
+        if($id == 0){
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not fill in',
+                'data'      =>  null
+            ];
+            return $this->status(500,$msg);
         }
         $resultById = $this->city->get($id);
         if($resultById == null){
-            echo " Id không tồn tại";
-            return;
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not existed',
+                'data'      => null
+            ];
+            return $this->status(500,$msg);
         }
-        echo '<pre>';
-        print_r($resultById);
-        echo '</pre>';
-        return;
+        $msg = [
+            'status'    =>  'success',
+            'msg'   =>  $resultById
+        ];
+        return $this->status(200,$msg);
     }
     public function postEdit(){
         $req = $_POST;
         $id = (int)$_REQUEST['id'];
-        $msg =[];
+        $msgs = $this->validate->edit($req);
         if($id ==0){
-            echo " Vui lòng nhập id";
-            return;
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not fill in',
+                'data'      =>  null
+            ];
+            return $this->status(500,$msg);
         }
         $resultById = $this->city->get($id);
         if($resultById == null){
-            echo " Id không tồn tại";
-            return;
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not exist',
+                'data'      => null
+            ];
+            return $this->status(500,$msg);
         }
         if (!isset($req['name'])) {
             array_push($msg, 'Vui lòng điền tên đất nước');
@@ -82,25 +112,45 @@ class cityController extends BaseController{
             return;
         } 
         $data = [
-            'name' => $req['name'],
-        ];    
+            'name'          => $req['name'],
+            'country_id'    => $req['country_id'],
+            'description'   => $req['description'],
+            'total_places'  => 0,
+            'image_cover'   => 'image',
+        ];  
         $result = $this->city->update($id,$data);
-        echo "Update city success";
-        return;
+        $msg = [
+            'status'    =>  'success',
+            'msg'       =>  'update city success',
+            'data'      => null
+        ];
+        return $this->status(500,$msg);
     }
     public function delete(){
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            echo "Vui lòng nhập Id";
-            return;
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not fill in',
+                'data'      => null
+            ];
+            return $this->status(500,$msg);
         }
         $resultGetById = $this->city->get($id);
         if($resultGetById == null){
-            echo "Id khong tồn tại";
-            return;
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Id not existed',
+                'data'      => null
+            ];
+            return $this->status(500,$msg);
         }
         $this->city->delete($id);
-        print_r("Delete user success");
-        return ;
+        $msg = [
+            'status'    =>  'success',
+            'msg'       =>  'Delete city success',
+            'data'      => null
+        ];
+        return $this->status(200,$msg);
     }
 }
