@@ -1,0 +1,31 @@
+version: '3.1'
+services:
+  php:
+    build:
+      context: .
+      dockerfile: ./src/Dockerfile
+    ports:
+      - 8000:80
+    volumes:
+      - ./src:/var/www/html
+      - ./apache2.conf:/etc/apache2/apache2.conf
+    networks:
+      - php-mysql
+  db-mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks:
+      - php-mysql
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - php-mysql
+networks:
+    php-mysql:
+      driver: bridge
