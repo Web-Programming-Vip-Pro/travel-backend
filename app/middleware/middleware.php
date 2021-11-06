@@ -2,37 +2,32 @@
 
 namespace App\Middleware;
 require_once('vendor/autoload.php');
+require_once('app/services/authenticationService.php');
 use \Firebase\JWT\JWT; 
+use App\Services\AuthenticationService;
 
 class Middleware {
+    private $authenticationService;
     public function __construct(){
+        $this->authenticationService = new AuthenticationService();
         return;
     }
     public function handleAdmin(){
-        define('SECRET_KEY','Your-Secret-Key');  /// secret key can be a random string and keep in secret from anyone
-        define('ALGORITHM','HS512');  
-        $secretKey = base64_decode(SECRET_KEY);
         $authHeader = apache_request_headers()['Authorization'];
         if(!isset($authHeader)){
-            return -1;
+            return null;
         }
         $arr = explode(" ", $authHeader);
-        $jwt = $arr[1];
-        try{
-            $result = JWT::decode(
-                $jwt, //Data to be encoded in the JWT
-                $secretKey, // The signing key
-                array(ALGORITHM) 
-            ); 
-            if(!isset($result)){
-                return -1;
-            }
-            return $result->data->role ;
-        }catch(\Firebase\JWT\ExpiredException $e){
-            return -1;
-        }
+        $token = $arr[1];
+        return $this->authenticationService->decodeJWTToken($token);
     }
     public function handleUser(){
-
+        $authHeader = apache_request_headers()['Authorization'];
+        if(!isset($authHeader)){
+            return null;
+        }
+        $arr = explode(" ", $authHeader);
+        $token = $arr[1];
+        return $this->authenticationService->decodeJWTToken($token);
     }
 }

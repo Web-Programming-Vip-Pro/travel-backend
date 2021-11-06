@@ -31,8 +31,9 @@ class cityController extends BaseController{
         $msgs = $this->validate->add($req);
         if(count($msgs) > 0){
             $msg = [
-                'status'    =>  'error',
-                'msg'       => "Some fielt not fill in"
+                'status'    => 'error',
+                'msg'       => 'Some fielt not fill in',
+                'data'      => $msgs
             ];
             return $this->status(422,$msg);
         } 
@@ -44,16 +45,18 @@ class cityController extends BaseController{
             'image_cover'   => 'image',
         ];
         $result = $this->city->create($data);
-        if($result == null){
+        if($result == false){
             $msg = [
-                'status'    =>  'error',
-                'msg'   =>  'Error add city'
+                'status'    => 'error',
+                'msg'       => 'Error add city',
+                'data'      => null
             ];
             return $this->status(500,$msg);
         }
         $msg = [    
             'status'    => ' success',
-            'msg'       => 'Add city success'
+            'msg'       => 'Add city success',
+            'data'      => null
         ]; 
         return $this->status(200,$msg);
     }  
@@ -71,22 +74,22 @@ class cityController extends BaseController{
         $resultById = $this->city->get($id);
         if($resultById == null){
             $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
+                'status'    => 'error',
+                'msg'       => 'Id not existed',
                 'data'      => null
             ];
             return $this->status(500,$msg);
         }
         $msg = [
             'status'    =>  'success',
-            'msg'   =>  $resultById
+            'msg'       =>  'Get city with id = '.$id,
+            'data'      => $resultById
         ];
         return $this->status(200,$msg);
     }
     public function postEdit(){
         $req = $_POST;
         $id = (int)$_REQUEST['id'];
-        $msgs = $this->validate->edit($req);
         if($id ==0){
             $msg = [
                 'status'    =>  'error',
@@ -96,20 +99,22 @@ class cityController extends BaseController{
             return $this->status(500,$msg);
         }
         $resultById = $this->city->get($id);
-        if($resultById == null){
+        if($resultById == false){
             $msg = [
                 'status'    =>  'error',
-                'msg'       =>  'Id not exist',
+                'msg'       =>  'City not exist',
                 'data'      => null
             ];
             return $this->status(500,$msg);
         }
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đất nước');
-        }
-        if(count($msg) > 0){
-            echo "Một số trường chưa được điền đầy đủ";
-            return;
+        $msgs = $this->validate->edit($req);
+        if(count($msgs) > 0){
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'Some fielt not pill in',
+                'data'      => $msgs
+            ];
+            return $this->status(422,$msg);
         } 
         $data = [
             'name'          => $req['name'],
@@ -117,14 +122,22 @@ class cityController extends BaseController{
             'description'   => $req['description'],
             'total_places'  => 0,
             'image_cover'   => 'image',
-        ];  
+        ];
         $result = $this->city->update($id,$data);
+        if($result == false){
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'update city fail',
+                'data'      => null
+            ];
+            return $this->status(500,$msg);
+        }
         $msg = [
             'status'    =>  'success',
             'msg'       =>  'update city success',
             'data'      => null
         ];
-        return $this->status(500,$msg);
+        return $this->status(200,$msg);
     }
     public function delete(){
         $id = (int)$_REQUEST['id'];
@@ -145,7 +158,15 @@ class cityController extends BaseController{
             ];
             return $this->status(500,$msg);
         }
-        $this->city->delete($id);
+        $result = $this->city->delete($id);
+        if($result == false){
+            $msg = [
+                'status'    =>  'error',
+                'msg'       =>  'delete city fail',
+                'data'      => null
+            ];
+            return $this->status(500,$msg);
+        }
         $msg = [
             'status'    =>  'success',
             'msg'       =>  'Delete city success',

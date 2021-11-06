@@ -6,7 +6,7 @@ $router->get("/user/edit.*?",'userController@getEdit');
 $router->post("/user/edit.*?",'userController@postEdit');
 $router->get("/user/delete.*?",'userController@delete');
 $router->post('/login','userController@login');
-$router->get('/logout','userController@logout');
+$router->get('/register','userController@postAdd');
 // route group "/country"
 $router->get("/country",'countryController@index');
 $router->post("/country/add",'countryController@postAdd');
@@ -31,4 +31,19 @@ $router->post("/blog/add",'blogController@postAdd');
 $router->get("/blog/edit.*?",'blogController@getEdit');
 $router->post("/blog/edit.*?",'blogController@postEdit');
 $router->get("/blog/delete.*?",'blogController@delete');
+// route group place
+$router->get("/place",'placeController@index');
+$router->post("/place/add",'placeController@postAdd');
+$router->get("/place/edit.*?",'placeController@getEdit');
+$router->post("/place/edit.*?",'placeController@postEdit');
+$router->get("/place/delete.*?",'placeController@delete');
+// route group transaction
+$router->get("/transaction.*?",'transactionController@index'); // @param id_user
+$router->post("/transaction/add.*?",'transactionController@postAdd'); // @param id_place
+$router->get("/transaction/edit.*?",'transactionController@getEdit');// @param id_transaction
+$router->post("/transaction/edit.*?",'transactionController@postEdit');// @param  id_transaction
+// route group wishlist
+$router->get("/wishlist.*?",'wishlistController@index'); // @param id_user
+$router->post("/wishlist/add.*?",'wishlistController@postAdd'); // @param id_place
+$router->get("/wishlist/delete.*?",'wishlistController@getEdit');// @param id_wishlist
 ?>

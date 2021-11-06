@@ -62,6 +62,7 @@ class DB{
             $values .= ',"' . mysqli_real_escape_string($this->conn,$value).'"';
         }
         $sql = 'INSERT INTO ' .$table . '(' . trim($keys,',') . ') VALUES (' . trim($values,',') . ')';
+        echo $sql;
         return mysqli_query($this->conn,$sql);
 
     }
@@ -85,6 +86,8 @@ class DB{
             $content .= ','. $key . '="' . mysqli_real_escape_string($this->conn,$value).'"';
         }
         $sql = 'UPDATE ' .$table .' SET '.trim($content,',') . ' WHERE ' . $where ;
+        $sql_update_at = 'UPDATE '.$table.' SET updated_at=now()';
+        mysqli_query($this->conn,$sql_update_at);
         return mysqli_query($this->conn,$sql);
     }
     /**

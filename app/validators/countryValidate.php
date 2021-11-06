@@ -13,7 +13,7 @@ class CountryValidate{
     public function add($req){
         $msg = [];
         if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đất nước');
+            array_push($msg, 'Please fill out name country');
         }
         return $msg;
 
@@ -21,7 +21,7 @@ class CountryValidate{
     public function edit($req){
         $msg = [];
         if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đất nước');
+            array_push($msg, 'Please fill out name country');
         }
         return $msg;
     }        

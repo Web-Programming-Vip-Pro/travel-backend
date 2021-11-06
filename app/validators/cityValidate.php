@@ -12,25 +12,28 @@ class CityValidate{
     }
     public function add($req){
         $msg = [];
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đất nước');
+        if (!$req['name'] || trim($req['name']) == '') {
+            array_push($msg, 'Please fill out name');
+        }
+        if (!$req['country_id'] || trim($req['country_id']) == '') {
+            array_push($msg, 'Please fill out name');
+        }
+        if (!$req['description'] || trim($req['description']) == '') {
+            array_push($msg, 'Please fill out name');
         }
         return $msg;
 
     }        
     public function edit($req){
         $msg = [];
-        if (!isset($req['name'])) {
-            array_push($msg, 'Vui lòng điền tên đầy đủ');
+        if (!isset($req['name']) || trim($req['name']) == '') {
+            array_push($msg, 'Please fill out name');
         }
-        if(!isset($req['email'])){
-            array_push($msg,'Vui lòng điền email');
+        if (!isset($req['country_id']) || trim($req['country_id']) == '' ) {
+            array_push($msg, 'Please fill out country_id');
         }
-        if(isset($req['password']) && $req['password'] != $req['repassword']){
-            array_push($msg,'Mật khẩu nhập lại không chính xác');
-        }
-        if(!isset($req['role'])){
-            array_push($msg,'Vui lòng chọn role');
+        if (!isset($req['description']) || trim($req['description']) == '') {
+            array_push($msg, 'Please fill out description');
         }
         return $msg;
     }       

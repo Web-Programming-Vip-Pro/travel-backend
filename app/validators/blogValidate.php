@@ -13,16 +13,16 @@ class BlogValidate{
     public function add($req){
         $msg = [];
         if (!isset($req['title'])) {
-            array_push($msg, 'Vui lòng điền tiêu đề');
+            array_push($msg, 'Please fill out title');
         }
         if (!isset($req['description'])) {
-            array_push($msg, 'Vui lòng điền miêu tả');
+            array_push($msg, 'Please fill out description');
         }
         if (!isset($req['content'])) {
-            array_push($msg, 'Vui lòng điền nội dung');
+            array_push($msg, 'Please fill out content');
         }
         if (!isset($req['category_id'])) {
-            array_push($msg, 'Vui lòng thêm category');
+            array_push($msg, 'Please fill out category id');
         }
         return $msg;
 
@@ -30,16 +30,16 @@ class BlogValidate{
     public function edit($req){
         $msg = [];
         if (!isset($req['title'])) {
-            array_push($msg, 'Vui lòng điền tiêu đề');
+            array_push($msg, 'Please fill out title');
         }
         if (!isset($req['description'])) {
-            array_push($msg, 'Vui lòng điền miêu tả');
+            array_push($msg, 'Please fill out description');
         }
         if (!isset($req['content'])) {
-            array_push($msg, 'Vui lòng điền nội dung');
+            array_push($msg, 'Please fill out content');
         }
         if (!isset($req['category_id'])) {
-            array_push($msg, 'Vui lòng thêm category');
+            array_push($msg, 'Please fill out category id');
         }
         return $msg;
     }       

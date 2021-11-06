@@ -2,73 +2,76 @@
 
 namespace App\Controllers;
 
-include_once('app/models/blogModel.php');
+include_once('app/models/placeModel.php');
+include_once('app/models/cityModel.php');
 include_once('core/http/Container.php');
-require_once('app/validators/blogValidate.php');
+require_once('app/validators/placeValidate.php');
 
-use App\Models\BlogModel;
+use App\Models\PlaceModel;
+use App\Models\CityModel;
 use Core\Http\BaseController;
-use App\Validator\BlogValidate;
-class blogController extends BaseController {
-    private $blog;
+use App\Validator\PlaceValidate;
+class placeController extends BaseController{
+    private $place;
     private $validate;
+    private $city;
     public function __construct(){
-        $this->blog = new BlogModel();
-        $this->validate = new BlogValidate();
+        $this->place = new PlaceModel();
+        $this->validate = new PlaceValidate();
+        $this->city = new CityModel();
     }
     public function index()
     {
-        $result = $this->blog->get();
-        $msg = [
-            'status'    => 'success',
-            'msg'       => 'Get blogs',
-            'data'      => $result
-        ];
-        return $this->status(200,$msg);
+       $result = $this->place->get();
+       $msg = [
+           'status' =>'success',
+           'msg'    => 'Get list places',
+           'data'   =>  $result
+       ];
+       return $this->status(200,$msg);
     }
     public function postAdd(){
         $req = $_POST;
         $msgs = $this->validate->add($req);
-        if(count($msgs) > 0){
+        if(count($msgs) >0){
             $msg = [
                 'status'    => 'error',
-                'msg'       => 'Some fielt not fill in',
+                'msg'       => 'Some fielt not filled in',
                 'data'      => $msgs
-            ];
-            return $this->status(422,$msg);
-        } 
+             ];
+             return $this->status(422,$msg);
+        }
         $data = [
             'title'         => $req['title'],
-            'content'       => $req['content'],
-            'description'   => $req['description'],
-            'author_id'     => 1,
-            'category_id'   => $req['category_id'],
+            'city_id'       => $req['city_id'],
+            'type'          => $req['type'],
+            'price'         => $req['price'],
+            'images'         => 'image',
+            'location'      => $req['location'],
+            'stars'         => 0.0,
+            'reviews'       => 0,
             'status'        => 0,
+            'author_id'     => 1,
         ];
-        /* if(isset($_FILE['image']) && $_FILE['image']['error'] == 0){
-            $target_dir = 'public/images/';
-            $target_file = $target_dir . basename($_FILE['image']['name']);
-            
-        } */
-        $result = $this->blog->create($data);
+        $result = $this->place->create($data);
         if($result == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Add blog error',
-                'data'      => null
+            $msg=[
+                'status'    =>  'error',
+                'msg'       =>  'Add place to database fail',
+                'data'      =>  null
             ];
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    => 'success',
-            'msg'       => 'Add blog success',
-            'data'      => $result
+        $msg=[
+            'status'    =>'Created',
+            'msg'       =>'Add place to database success',
+            'data'      => null
         ];
         return $this->status(200,$msg);
     }  
     public function getEdit(){
         $id = (int)$_REQUEST['id'];
-        if($id ==0){
+        if($id == 0 ){
             $msg = [
                 'status'    =>  'error',
                 'msg'       =>  'Id not fill in',
@@ -76,8 +79,8 @@ class blogController extends BaseController {
             ];
             return $this->status(500,$msg);
         }
-        $resultById = $this->blog->get($id);
-        if($resultById == false){
+        $result = $this->place->get($id);
+        if($result == false){
             $msg = [
                 'status'    =>  'error',
                 'msg'       =>  'Id not existed',
@@ -87,23 +90,24 @@ class blogController extends BaseController {
         }
         $msg = [
             'status'    =>  'success',
-            'msg'       =>  'Get blog by id',
-            'data'      => $resultById
+            'msg'       =>  'Get user by id',
+            'data'      => $result
         ];
         return $this->status(200,$msg);
+        
     }
     public function postEdit(){
         $req = $_POST;
         $id = (int)$_REQUEST['id'];
-        if($id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
+        if($id == 0){
+            $msg =[
+                'status'    => 'error',
+                'msg'       =>  'Id not filled in',
+                'data'      => null, 
             ];
             return $this->status(500,$msg);
         }
-        $resultById = $this->blog->get($id);
+        $resultById = $this->place->get($id);
         if($resultById == false){
             $msg = [
                 'status'    =>  'error',
@@ -120,16 +124,20 @@ class blogController extends BaseController {
                 'data'      => $msgs
             ];
             return $this->status(422,$msg);
-        } 
+        }
         $data = [
             'title'         => $req['title'],
-            'content'       => $req['content'],
-            'description'   => $req['description'],
-            'author_id'     => 1,
-            'category_id'   => $req['category_id'],
+            'city_id'       => $req['city_id'],
+            'type'          => $req['type'],
+            'price'         => $req['price'],
+            'images'         => 'image',
+            'location'      => $req['location'],
+            'stars'         => 0.0,
+            'reviews'       => 0,
             'status'        => 0,
+            'author_id'     => 1,
         ];
-        $result = $this->blog->update($id,$data);
+        $result = $this->place->update($id,$data);
         if($result == true){
             $msg = [
                 'status'    => 'success', 
@@ -151,11 +159,11 @@ class blogController extends BaseController {
             $data=[
                 'status'    => 'error',
                 'msg'       =>  'Id not filled in',
-                'data'      => null
+                'data'      => null, 
             ];
             return $this->status(500,$data);
         }
-        $resultGetById = $this->blog->get($id);
+        $resultGetById = $this->place->get($id);
         if($resultGetById == false){
             $msg = [
                 'status'    => 'error',
@@ -164,10 +172,10 @@ class blogController extends BaseController {
             ];
             return $this->status(500,$msg);
         }
-        $this->blog->delete($id);
+        $this->place->delete($id);
         $msg = [
             'status'    => 'success',
-            'msg'       =>  'Delete blog success',
+            'msg'       =>  'Delete user success',
             'data'      => null, 
         ];
         return $this->status(200,$msg);

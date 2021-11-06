@@ -7,14 +7,15 @@ require_once('core/http/Container.php');
 require_once('app/middleware/middleware.php');
 require_once('app/validators/userValidate.php');
 require_once('app/services/authenticationService.php');
+require_once('app/services/userService.php');
 require_once('vendor/autoload.php');
-require_once('storage/helper.php');
-use \Firebase\JWT\JWT; 
+require_once('storage/helper.php'); 
 use App\Models\UserModel;
 use Core\Http\BaseController;
 use App\Middleware\Middleware;
 use App\Validator\UserValidate;
 use App\Services\AuthenticationService;
+use App\Services\UserService;
 use Storage\Helper;
 
 class userController extends BaseController
@@ -23,6 +24,8 @@ class userController extends BaseController
     private $middleware;
     private $validate;
     private $helper;
+    private $authenticationService;
+    private $userService;
     public function __construct()
     {
         $this->user         = new UserModel();
@@ -30,25 +33,18 @@ class userController extends BaseController
         $this->validate     = new UserValidate();
         $this->helper       = new Helper();
         $this->authenticationService = new AuthenticationService();
+        $this->userService = new UserService();
     }
     public function index()
     {   
         /**
          * middleware user
          */
-        $role_login = $this->middleware->handleAdmin();
-        if($role_login == -1){
+        $jwt = $this->middleware->handleAdmin();
+        if($jwt == null){
             $msg = [
                 'status'    => 'Unauthorized',
                 'msg'       => 'You are not loged in',
-                'data'      => null
-            ];
-            return $this->status(401,$msg);
-        }  
-        if($role_login == 2){
-            $msg = [
-                'status'    => 'Unauthorized',
-                'msg'       => 'User  not permit to access and redirect to login',
                 'data'      => null
             ];
             return $this->status(401,$msg);
@@ -74,22 +70,9 @@ class userController extends BaseController
             ];
             return $this->status(422,$msg);
         }
-        $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
-        $data =[
-            "name"              => $req["name"],
-            "email"             => $req["email"],
-            "password"          => $hashed_password,
-            "bio"               => 'bio',
-            "role"              => 1,
-            "avatar"            => 'avatar',
-            "status_agency"     => 0,
-            "image_cover"       => 'image_cover',
-            "blocked"           => 0,
-        ];
-        $data['info'] = $this->helper->jsonEncodeInfo($req);
-        $data['social'] = $this->helper->jsonEncodeSocial($req);
+        $data = $this->userService->add($req);
         $resultByEmail = $this->user->getByEmail($data['email']);
-        if(count($resultByEmail)>0){
+        if($resultByEmail != false){
             $msg=[
                 'status'    =>  'error',
                 'msg'       =>  'User existed',
@@ -99,10 +82,11 @@ class userController extends BaseController
         }
         $result = $this->user->create($data);
         if($result == true){
+            $JWT = $this->authenticationService->generateJWTToken($result);
             $msg=[
                 'status'    =>'Created',
                 'msg'       =>'Add user to database success',
-                'data'      => null
+                'data'      => $JWT
             ];
             return $this->status(201,$msg);
         }
@@ -168,6 +152,18 @@ class userController extends BaseController
             ];
             return $this->status(500,$msg);
         }
+        // check email đã tồn tại chưa ?
+        if($resultGetById['email'] != $req['email']){
+            $resultByEmail = $this->user->getByEmail($req['email']);
+            if($resultByEmail != false){
+                $msg = [
+                    'status'    => 'error',
+                    'msg'       =>  'User existed',
+                    'data'      => null, 
+                ];
+                return $this->status(500,$msg);
+            }
+        }
         // validator
         $msgs = $this->validate->edit($req);
         if(count($msgs) > 0){
@@ -179,35 +175,7 @@ class userController extends BaseController
             return $this->status(422,$msg);
         }
         // data req
-        $data =[
-            "name"  => $req["name"],
-            "email" => $req["email"],
-            "bio"   => $req['bio'],
-            "role"   => 1,
-            "avatar"   => 'avatar',
-            "status_agency"   => 0,
-            "image_cover"   => 'image_cover',
-            "blocked" => 0,
-        ];
-        $data['info'] = $this->helper->jsonEncodeInfo($req);
-        $data['social'] = $this->helper->jsonEncodeSocial($req);
-        // nếu có password mới update
-        if(isset($req['password']) && $req['password'] == $req['repassword']){
-            $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
-            $data['password'] = $hashed_password;
-        }
-        // check email đã tồn tại chưa ?
-        if($resultGetById['email'] != $data['email']){
-            $resultByEmail = $this->user->getByEmail($data['email']);
-            if(count($resultByEmail)>0){
-                $msg = [
-                    'status'    => 'error',
-                    'msg'       =>  'User existed',
-                    'data'      => null, 
-                ];
-                return $this->status(500,$msg);
-            }
-        }
+        $data = $this->userService->edit($req);
         $result = $this->user->update($id,$data);
         if($result == true){
             $msg = [
@@ -253,80 +221,50 @@ class userController extends BaseController
         return $this->status(200,$msg);
     }
     public function login(){
-        define('SECRET_KEY','Your-Secret-Key');  /// secret key can be a random string and keep in secret from anyone
-        define('ALGORITHM','HS512');  
         $req = $_POST;
-        $msg = $this->validate->login($req);
-        if(count($msg) > 0 ){
+        $msgs = $this->validate->login($req);
+        if(count($msgs) > 0 ){
             echo("mot vai truong chua dien");
             return;
         }
         $email = $req['email'];
         $password = $req['password'];
         $resultByEmail = $this->user->getByEmail($email);
-        if($resultByEmail == null){
-            echo "Tai khoan khong ton tai";
-            return;
+        if($resultByEmail == false){
+            $msg = [
+                'status'    =>'error',
+                'msg'       => 'User not existed',
+                'data'      => null,
+            ];
+            return $this->status(500,$msg);
         }
         $passwordHash = $resultByEmail[0]->password;
         // $verify =password_verify($password, $passwordHash;
         if(!password_verify($password, $passwordHash)) {
-            echo ("Mat khau khong chinh xac");
-            return;
+            $msg = [
+                'status'    =>'error',
+                'msg'       => 'Password incorrect',
+                'data'       => null,
+            ];
+            return $this->status(200,$msg);
         }
-        /**
-         * 
-         * 
-         */
-        $tokenId    = base64_encode(random_bytes(32));
-        $issuedAt   = time();
-        $notBefore  = $issuedAt + 10;  //Adding 10 seconds
-        $expire     = $notBefore + 7200; // Adding 60 seconds
-        $serverName = 'http://localhost/'; /// set your domain name    
-        /*
-            * Create the token as an array
-            */
-        $payload = [
-            'iat'  => $issuedAt,         // Issued at: time when the token was generated
-            'jti'  => $tokenId,          // Json Token Id: an unique identifier for the token
-            'iss'  => $serverName,       // Issuer
-            'nbf'  => $notBefore,        // Not before
-            'exp'  => $expire,           // Expire
-            'data' => [                  // Data related to the logged user you can set your required data
-                'id'   => $resultByEmail[0]->id, // id from the users table
-                'name' => $resultByEmail[0]->name, //  name
-                'role' => $resultByEmail[0]->role, //  name
-            ]
-        ];
-        $secretKey = base64_decode(SECRET_KEY);
-        echo $secretKey;
         /// Here we will transform this array into JWT:
-        $jwt = JWT::encode(
-                $payload, //Data to be encoded in the JWT
-                $secretKey, // The signing key
-                ALGORITHM 
-            ); 
+        $jwt = $this->authenticationService->generateJWTToken($resultByEmail);
         $role = $resultByEmail[0]->role;
         if($role == 0 || $role == 1){
             $msg = [
                 'status'    =>'success',
-                'msg'       =>"Return page admin",
-                'data'       => $jwt,
+                'msg'       => 'Return page admin',
+                'data'      => $jwt,
             ];
             return $this->status(200,$msg);
         }
         $msg = [
             'status'    =>'success',
-            'msg'       =>"Return page admin",
-            'data'       => $jwt,
+            'msg'       =>'Return page admin',
+            'data'      => $jwt,
         ];
         return $this->status(200,$msg);
     }
-    // public function logout(){
-    //     unset($_COOKIE['login']);
-    //     setcookie('login', '', time() - 3600, '/',$serverName); 
-    //     echo "Logout success";
-    //     return;
-    // }
 }
  
