@@ -7,7 +7,6 @@ services:
     ports:
       - 8000:80
     volumes:
-      - ./src:/var/www/html
       - ./apache2.conf:/etc/apache2/apache2.conf
     networks:
       - php-mysql

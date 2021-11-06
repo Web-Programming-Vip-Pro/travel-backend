@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 WORKDIR /var/www/html
-COPY ./src/ ./
+COPY ./src/composer.json ./src/composer.lock ./ 
+RUN composer install --no-scripts 
+COPY ./src/ ./ 
 RUN a2enmod rewrite && service apache2 restart
-RUN composer install
