@@ -1,6 +1,7 @@
 <?php
 // route group "/user" 
-$router->get("/user",'userController@index');
+$router->get("/user",'userController@index');// get jwt
+$router->get("/users",'userController@list');// get jwt
 $router->post("/user/add",'userController@postAdd');
 $router->get("/user/edit.*?",'userController@getEdit');
 $router->post("/user/edit.*?",'userController@postEdit');
@@ -8,8 +9,8 @@ $router->get("/user/delete.*?",'userController@delete');
 $router->post('/login','userController@login');
 $router->get('/register','userController@postAdd');
 // route group "/country"
-$router->get("/country",'countryController@index');
-$router->post("/country/add",'countryController@postAdd');
+$router->get("/countries",'countryController@index');
+$router->post("/countrys/add",'countryController@postAdd');
 $router->get("/country/edit.*?",'countryController@getEdit');
 $router->post("/country/edit.*?",'countryController@postEdit');
 $router->get("/country/delete.*?",'countryController@delete');

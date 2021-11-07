@@ -40,7 +40,13 @@ class userController extends BaseController
         /**
          * middleware user
          */
-        $jwt = $this->middleware->handleAdmin();
+        $authHeader = apache_request_headers()['Authorization'];
+        if(!isset($authHeader)){
+            return null;
+        }
+        $arr = explode(" ", $authHeader);
+        $token = $arr[1];
+        $jwt = $this->authenticationService->decodeJWTToken($token);
         if($jwt == null){
             $msg = [
                 'status'    => 'Unauthorized',
@@ -50,6 +56,16 @@ class userController extends BaseController
             return $this->status(401,$msg);
         }  
         // when accessed,get data users
+        $msg = [
+            'status'    => 'success',
+            'msg'       => 'Get jwt user',
+            'data'      => $jwt
+        ];
+        return $this->status(200,$msg);
+    }
+    public function list()
+    {   
+        // when accessed,get data users
         $result = $this->user->get();
         $msg = [
             'status'    => 'success',
@@ -58,6 +74,7 @@ class userController extends BaseController
         ];
         return $this->status(200,$msg);
     }
+    
     public function postAdd()
     {
         $req = $_POST;

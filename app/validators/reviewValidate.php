@@ -15,7 +15,7 @@ class ReviewValidate{
         if(!$req['rate']){
             array_push($msg,'Please choise rate');
         }
-        if(!$req['message'] || trim($req['message'])==''){
+        if(!$req['comment'] || trim($req['comment'])==''){
             array_push($msg,'Please fill out comment');
         }
         return $msg;

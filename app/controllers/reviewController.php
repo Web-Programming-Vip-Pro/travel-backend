@@ -3,21 +3,25 @@
 namespace App\Controllers;
 
 include_once('app/models/reviewModel.php');
+include_once('app/models/placeModel.php');
+include_once('app/models/notifyModel.php');
 include_once('core/http/Container.php');
 require_once('app/validators/reviewValidate.php');
-include_once('app/models/placeModel.php');
 use App\Models\ReviewModel;
 use Core\Http\BaseController;
 use App\Validator\ReviewValidate;
 use App\Models\PlaceModel;
+use App\Models\NotifyModel;
 class ReviewController extends BaseController{
     private $review;
     private $validate;
     private $place;
+    private $notify;
     public function __construct(){
         $this->review = new ReviewModel();
         $this->validate = new ReviewValidate();
         $this->place = new PlaceModel();
+        $this->notify = new NotifyModel();
     }
     // get review with place_id
     public function index()
@@ -68,8 +72,14 @@ class ReviewController extends BaseController{
         }else{
             $dataPlace['stars'] =  (float)($place['stars']+$req['rate'])/2;
         }
-        var_dump($dataPlace);
-        $place = $this->place->update($place_id,$dataPlace);
+        $this->place->update($place_id,$dataPlace);
+        $dataNotify = [
+            'title' => 'Your place have a new review',
+            'content' => $data['comment'],
+            'seen' => false,
+            'user_id' => $place['author_id']
+        ];
+        $this->notify->create($dataNotify);
         $msg = [    
             'status'    => ' success',
             'msg'       => 'Add review success',
