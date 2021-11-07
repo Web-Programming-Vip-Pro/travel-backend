@@ -63,7 +63,6 @@ class DB{
         }
         $sql = 'INSERT INTO ' .$table . '(' . trim($keys,',') . ') VALUES (' . trim($values,',') . ')';
         return mysqli_query($this->conn,$sql);
-
     }
     /**
      * update sửa dữ liệu

@@ -34,7 +34,6 @@ class AuthenticationService
     {
         try{
             $decoded = JWT::decode($token, $this->secretKey, array($this->algorithm));
-            echo(gettype($decoded));
             return $decoded;
         }catch(\Firebase\JWT\ExpiredException $e){
             return null;

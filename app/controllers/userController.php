@@ -99,7 +99,8 @@ class userController extends BaseController
         }
         $result = $this->user->create($data);
         if($result == true){
-            $JWT = $this->authenticationService->generateJWTToken($result);
+            $payload = $this->user->getByEmail($data['email']);
+            $JWT = $this->authenticationService->generateJWTToken($payload);
             $msg=[
                 'status'    =>'Created',
                 'msg'       =>'Add user to database success',
