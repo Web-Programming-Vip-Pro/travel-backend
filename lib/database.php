@@ -62,7 +62,6 @@ class DB{
             $values .= ',"' . mysqli_real_escape_string($this->conn,$value).'"';
         }
         $sql = 'INSERT INTO ' .$table . '(' . trim($keys,',') . ') VALUES (' . trim($values,',') . ')';
-        echo $sql;
         return mysqli_query($this->conn,$sql);
 
     }
@@ -206,6 +205,7 @@ class DB{
         if($result = mysqli_query($this->conn,$sql))
         {
             if($return === true){
+                $data = null;
                 while ($row = mysqli_fetch_object($result)) {
                     $data[] = $row;
                 }

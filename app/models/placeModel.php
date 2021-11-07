@@ -15,11 +15,6 @@ class PlaceModel {
         }
         return $this->conn->getRowArray($this->table,$id);
     }
-    public function getByEmail ($email){
-        $where = 'email= "'.$email.'"';
-        $sql = 'SELECT * FROM '. $this->table . ' WHERE '. $where;
-        return $this->conn->query($sql);
-    }
     public function create($data){
        return $this->conn->insert($this->table,$data);
     }

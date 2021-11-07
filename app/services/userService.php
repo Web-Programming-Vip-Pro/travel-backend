@@ -54,6 +54,7 @@ class UserService
             $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
             $data['password'] = $hashed_password;
         }
+        return $data;
     }
     public function delete ($id){
         if($id == 0){

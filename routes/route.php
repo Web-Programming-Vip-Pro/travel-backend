@@ -46,4 +46,7 @@ $router->post("/transaction/edit.*?",'transactionController@postEdit');// @param
 $router->get("/wishlist.*?",'wishlistController@index'); // @param id_user
 $router->post("/wishlist/add.*?",'wishlistController@postAdd'); // @param id_place
 $router->get("/wishlist/delete.*?",'wishlistController@getEdit');// @param id_wishlist
+// route group review
+$router->get("/review.*?",'reviewController@index'); // @param id_place
+$router->post("/review/add.*?",'reviewController@postAdd'); // @param id_place
 ?>
