@@ -10,30 +10,30 @@ $router->post('/login','userController@login');
 $router->get('/register','userController@postAdd');
 // route group "/country"
 $router->get("/countries",'countryController@index');
-$router->post("/countrys/add",'countryController@postAdd');
+$router->post("/country/add",'countryController@postAdd');
 $router->get("/country/edit.*?",'countryController@getEdit');
 $router->post("/country/edit.*?",'countryController@postEdit');
 $router->get("/country/delete.*?",'countryController@delete');
 // route group category
-$router->get("/category",'categoryController@index');
+$router->get("/categories",'categoryController@index');
 $router->post("/category/add",'categoryController@postAdd');
 $router->get("/category/edit.*?",'categoryController@getEdit');
 $router->post("/category/edit.*?",'categoryController@postEdit');
 $router->get("/category/delete.*?",'categoryController@delete');
 // route group city
-$router->get("/city",'cityController@index');
+$router->get("/citys",'cityController@index');
 $router->post("/city/add",'cityController@postAdd');
 $router->get("/city/edit.*?",'cityController@getEdit');
 $router->post("/city/edit.*?",'cityController@postEdit');
 $router->get("/city/delete.*?",'cityController@delete');
 // route group blog
-$router->get("/blog",'blogController@index');
+$router->get("/blogs",'blogController@index');
 $router->post("/blog/add",'blogController@postAdd');
 $router->get("/blog/edit.*?",'blogController@getEdit');
 $router->post("/blog/edit.*?",'blogController@postEdit');
 $router->get("/blog/delete.*?",'blogController@delete');
 // route group place
-$router->get("/place",'placeController@index');
+$router->get("/places",'placeController@index');
 $router->post("/place/add",'placeController@postAdd');
 $router->get("/place/edit.*?",'placeController@getEdit');
 $router->post("/place/edit.*?",'placeController@postEdit');

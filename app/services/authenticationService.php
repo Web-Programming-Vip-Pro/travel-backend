@@ -21,7 +21,7 @@ class AuthenticationService
         // Default expiry time is 1 hour
         $exp = $iat + 3600;
         // Delete user password before creating token
-        unset($user->password);
+        unset($user[0]->password);
         $payload = array(
             'iat' => $iat,
             'exp' => $exp,
