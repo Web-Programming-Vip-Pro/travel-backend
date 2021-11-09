@@ -3,6 +3,7 @@
 namespace App\Services;
 
 require_once('vendor/autoload.php');
+require_once('config/config.php');
 
 use \Firebase\JWT\JWT;
 
@@ -12,7 +13,7 @@ class AuthenticationService
     public $algorithm;
     public function __construct()
     {
-        $this->secretKey = $_ENV['JWT_SECRET'];
+        $this->secretKey = JWT_SECRET;
         $this->algorithm = 'HS512';
     }
     public function generateJWTToken($user)
