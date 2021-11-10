@@ -15,7 +15,7 @@ class AuthenticationService
     public function __construct()
     {
         $this->secretKey = JWT_SECRET;
-        $this->algorithm = 'HS512';
+        $this->algorithm = 'HS256';
     }
     public function generateJWTToken($user)
     {
