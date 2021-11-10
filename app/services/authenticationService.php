@@ -5,6 +5,7 @@ namespace App\Services;
 require_once('vendor/autoload.php');
 require_once('config/config.php');
 
+use Exception;
 use \Firebase\JWT\JWT;
 
 class AuthenticationService
@@ -33,10 +34,10 @@ class AuthenticationService
 
     public function decodeJWTToken($token)
     {
-        try{
+        try {
             $decoded = JWT::decode($token, $this->secretKey, array($this->algorithm));
             return $decoded;
-        }catch(\Firebase\JWT\ExpiredException $e){
+        } catch (Exception $e) {
             return null;
         }
     }

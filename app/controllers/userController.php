@@ -43,6 +43,7 @@ class userController extends BaseController
         $arr = explode(" ", $authHeader);
         $token = $arr[1];
         $jwt = $this->authenticationService->decodeJWTToken($token);
+        var_dump($jwt);
         if($jwt == null){
             $msg =  'You are not loged in';
             return $this->status(401,$msg);
