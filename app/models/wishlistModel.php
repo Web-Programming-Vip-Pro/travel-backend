@@ -20,11 +20,6 @@ class WishlistModel {
         $sql = 'SELECT * FROM '. $this->table . ' WHERE '. $where;
         return $this->conn->query($sql);
     }
-    public function getForAcengy ($agency_id){
-        $where = 'agency_id= "'.$agency_id.'"';
-        $sql = 'SELECT * FROM '. $this->table . ' WHERE '. $where;
-        return $this->conn->query($sql);
-    }
     public function create($data){
        return $this->conn->insert($this->table,$data);
     }

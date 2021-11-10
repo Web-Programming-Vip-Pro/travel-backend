@@ -19,22 +19,15 @@ class blogController extends BaseController {
     public function index()
     {
         $result = $this->blog->get();
-        $msg = [
-            'status'    => 'success',
-            'msg'       => 'Get blogs',
-            'data'      => $result
-        ];
+        $msg = $result;
         return $this->status(200,$msg);
     }
     public function postAdd(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = $this->validate->add($req);
         if(count($msgs) > 0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not fill in',
-                'data'      => $msgs
-            ];
+            $msg = 'Some fielt not filled in';
             return $this->status(422,$msg);
         } 
         $data = [
@@ -52,73 +45,42 @@ class blogController extends BaseController {
         } */
         $result = $this->blog->create($data);
         if($result == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Add blog error',
-                'data'      => null
-            ];
+            $msg= 'Add blog to database fail';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    => 'success',
-            'msg'       => 'Add blog success',
-            'data'      => $result
-        ];
+        $msg= 'Add blog to database success';
         return $this->status(200,$msg);
     }  
     public function getEdit(){
         $id = (int)$_REQUEST['id'];
         if($id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
-            ];
+            $msg = 'Id not fill in';
             return $this->status(500,$msg);
         }
         $resultById = $this->blog->get($id);
         if($resultById == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Get blog by id',
-            'data'      => $resultById
-        ];
+        $msg = $resultById;
         return $this->status(200,$msg);
     }
     public function postEdit(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $id = (int)$_REQUEST['id'];
         if($id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
-            ];
+            $msg =   'Id not fill in';
             return $this->status(500,$msg);
         }
         $resultById = $this->blog->get($id);
         if($resultById == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
         $msgs = $this->validate->edit($req);
         if(count($msgs) > 0){
-            $msg=[
-                'status'    => 'error',
-                'msg'       => 'Some field not fill in',
-                'data'      => $msgs
-            ];
+            $msg =  'Some fielt not filled in';
             return $this->status(422,$msg);
         } 
         $data = [
@@ -131,45 +93,25 @@ class blogController extends BaseController {
         ];
         $result = $this->blog->update($id,$data);
         if($result == true){
-            $msg = [
-                'status'    => 'success', 
-                'msg'       => 'Update user success',
-                'data'      => null
-            ];
+            $msg =  'Update blog success';
             return $this->status(200,$msg);
         }
-        $msg = [
-            'status'    => 'error', 
-            'msg'       => 'Update user error',
-            'data'      => null
-        ];
+        $msg = 'Update blog error';
         return $this->status(500,$msg);
     }
     public function delete(){
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $data=[
-                'status'    => 'error',
-                'msg'       =>  'Id not filled in',
-                'data'      => null
-            ];
-            return $this->status(500,$data);
+            $msg =   'Id not fill in';
+            return $this->status(500,$msg);
         }
         $resultGetById = $this->blog->get($id);
         if($resultGetById == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       =>  'Id not exactly',
-                'data'      => null, 
-            ];
+            $msg =   'Id not exactly';
             return $this->status(500,$msg);
         }
         $this->blog->delete($id);
-        $msg = [
-            'status'    => 'success',
-            'msg'       =>  'Delete blog success',
-            'data'      => null, 
-        ];
+        $msg = 'Delete blog success';
         return $this->status(200,$msg);
     }
 }

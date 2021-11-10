@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Services;
+
+require_once('core/http/Container.php');
+require_once('app/models/categoryModel.php');
+require_once('app/validators/cateValidate.php');
+
+use App\Models\CategoryModel;
+use App\Validator\CateValidate;
+use Core\Http\BaseController;
+class CategoryService
+{
+    private $category;
+    private $validate;
+    private $container;
+    public function __construct()
+    {
+        $this->container    = new BaseController();
+        $this->validate     = new CateValidate();
+        $this->category         = new CategoryModel();
+    }
+    public function list(){
+        $result = $this->category->get();
+        return $this->container->status(200,$result);
+    }
+    public function add($req)
+    {
+        $msgs = $this->handleValidator($req,'add');
+        if($msgs != false){
+            return $this->container->status(422,$msgs);
+        }
+        $data = [
+            'title'         => $req['title'],
+            'description'   => $req['description']
+        ];
+        $result = $this->category->create($data);
+        if($result == false){
+            $msg= 'Add cate to database fail';
+            return $this->container->status(500,$msg);
+        }
+        $msg= 'Add cate to database success';
+        return $this->container->status(200,$msg);
+    }
+    // function get edit  category 
+    public function getEdit($id){
+        $msgHandleId = $this->handleId($id);
+        if($msgHandleId != false){
+            return $this->container->status(500,$msgHandleId);
+        }
+        $msg = $this->category->get($id);
+        return $this->container->status(200,$msg);
+    }
+    // function post edit category
+    public function postEdit($id,$req)
+    {
+        $msgHandleId = $this->handleId($id);
+        if($msgHandleId != false){
+            return $this->container->status(500,$msgHandleId);
+        }
+        $msgs = $this->handleValidator($req,'edit');
+        if($msgs != false){
+            return $this->container->status(422,$msgs);
+        }
+        $data = [
+            'title'         => $req['title'],
+            'description'   => $req['description']
+        ];
+        $result = $this->category->update($id,$data);
+        if($result == true){
+            $msg =  'Update cate success';
+            return $this->container->status(200,$msg);
+        }
+        $msg = 'Update cate error';
+        return $this->container->status(500,$msg);
+    }
+    // function delete category
+    public function delete ($id){
+        $msgHandleId = $this->handleId($id);
+        if($msgHandleId != false){
+            return $this->container->status(500,$msgHandleId);
+        }
+        $this->category->delete($id);
+        $msg = 'Delete cate success';
+        return $this->container->status(200,$msg);
+    }
+    // fucntion handle validate 
+    public function handleValidator($req,$action){
+        $msgs = null;
+        if($action == 'add'){
+            $msgs = $this->validate->add($req); 
+        }else{
+            $msgs = $this->validate->edit($req); 
+        }
+        if(count($msgs) > 0){
+            return $msgs;
+        } 
+        return false;
+    }
+    // fucntion handle id if not fill or not exact
+    public function handleId($id){
+        if($id == 0){
+            return 'Id not fill in';
+        }
+        $resultGetById = $this->category->get($id);
+        if($resultGetById == null){
+            return  'Id not exactly';
+        }
+        return false;
+    }
+}

@@ -19,106 +19,58 @@ class countryController extends BaseController{
     public function index()
     {
         $result = $this->country->get();
-        $msg = [
-            'status' =>'success',
-            'msg'    => 'Get list country',
-            'data'   =>  $result
-        ];
+        $msg = $result;
         return $this->status(200,$msg);
     }
     public function postAdd(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = $this->validate->add($req);
         if(count($msgs) > 0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not filled in',
-                'data'      => $msgs
-             ];
-             return $this->status(422,$msg);
+            $msg = 'Some fielt not filled in';
+            return $this->status(422,$msg);
         } 
-        $msgs = $this->validate->add($req);
-        if(count($msgs) >0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not filled in',
-                'data'      => $msgs
-             ];
-             return $this->status(422,$msg);
-        }
         $data = [
             'name' => $req['name'],
         ];
         $result = $this->country->create($data);
         if($result == false){
-            $msg=[
-                'status'    =>  'error',
-                'msg'       =>  'Add country to database fail',
-                'data'      =>  null
-            ];
+            $msg= 'Add country to database fail';
             return $this->status(500,$msg);
         }
-        $msg=[
-            'status'    =>'Created',
-            'msg'       =>'Add country to database success',
-            'data'      => null
-        ];
+        $msg= 'Add country to database success';
         return $this->status(200,$msg);
     }  
     public function getEdit(){
-        $req = $_POST;
         $id = (int)$_REQUEST['id'];
         if($id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
-            ];
+            $msg = 'Id not fill in';
             return $this->status(500,$msg);
         }
         $resultById = $this->country->get($id);
         if($resultById == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Get country with id = '.$id,
-            'data'      => $resultById
-        ];
+        $msg =  $resultById;
         return $this->status(200,$msg);
     }
     public function postEdit(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $id = (int)$_REQUEST['id'];
         if($id ==0){
-            $msg =[
-                'status'    => 'error',
-                'msg'       =>  'Id not filled in',
-                'data'      => null, 
-            ];
+            $msg = 'Id not filled in';
             return $this->status(500,$msg);
         }
         $resultById = $this->country->get($id);
         if($resultById == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
         $msgs = $this->validate->edit($req);
         if(count($msgs) > 0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not filled in',
-                'data'      => $msgs
-             ];
+            $msg =  'Some fielt not filled in';
              return $this->status(422,$msg);
         } 
         $data = [
@@ -126,45 +78,25 @@ class countryController extends BaseController{
         ];    
         $result = $this->country->update($id,$data);
         if($result == true){
-            $msg = [
-                'status'    => 'success', 
-                'msg'       => 'Update country success',
-                'data'      => null
-            ];
+            $msg =  'Update cate success';
             return $this->status(200,$msg);
         }
-        $msg = [
-            'status'    => 'error', 
-            'msg'       => 'Update country error',
-            'data'      => null
-        ];
+        $msg =  'Update cate error';
         return $this->status(500,$msg);
     }
     public function delete(){
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $data=[
-                'status'    => 'error',
-                'msg'       =>  'Id not filled in',
-                'data'      => null, 
-            ];
-            return $this->status(500,$data);
+            $msg =   'Id not fill in';
+            return $this->status(500,$msg);
         }
         $resultGetById = $this->country->get($id);
         if($resultGetById == null){
-            $msg = [
-                'status'    => 'error',
-                'msg'       =>  'Id not exactly',
-                'data'      => null, 
-            ];
+            $msg =   'Id not exactly';
             return $this->status(500,$msg);
         }
         $this->country->delete($id);
-        $msg = [
-            'status'    => 'success',
-            'msg'       =>  'Delete country success',
-            'data'      => null, 
-        ];
+        $msg = 'Delete cate success';
         return $this->status(200,$msg);
     }
 }

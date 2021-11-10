@@ -23,41 +23,24 @@ class transactionController extends BaseController{
         $role = 1;// get role qua token
         if($role == 1){
             $result = $this->transaction->getForAcengy($user_id);
-            $msgs = [
-                'status'    =>  'success',
-                'msg'       =>  'Get transaction',
-                'data'      =>  $result
-            ];
-            return $this->status(200,$msgs);
+            $msg = $result;
+            return $this->status(200,$msg);
         }
         if($role == 2){
             $result = $this->transaction->getForUser($user_id);
-            $msgs = [
-                'status'    =>  'success',
-                'msg'       =>  'Get transaction',
-                'data'      =>  $result
-            ];
-            return $this->status(200,$msgs);
+            $msg = $result;
+            return $this->status(200,$msg);
         }
-       
     }
     public function postAdd(){
         $place_id = (int)$_REQUEST['id'];
         if($place_id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      =>  null
-            ];
+            $msg = 'Id not filled in';
             return $this->status(500,$msg);
         }
         $resultByIdPlace = $this->place->get($place_id);
         if($resultByIdPlace == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Place not existed',
-                'data'      => null
-            ];
+            $msg =  'Place not existed';
             return $this->status(500,$msg);
         }
         $data=[
@@ -68,64 +51,37 @@ class transactionController extends BaseController{
         ];
         $result = $this->transaction->create($data);
         if($result == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Error add transaction',
-                'data'      => null
-            ];
+            $msg= 'Add transaction to database fail';
             return $this->status(500,$msg);
         }
-        $msg = [    
-            'status'    => ' success',
-            'msg'       => 'Add transaction success',
-            'data'      => null
-        ]; 
+        $msg= 'Add transaction to database success';
         return $this->status(200,$msg);
     }  
     public function getEdit(){
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      =>  null
-            ];
+            $msg = 'Id not filled in';
             return $this->status(500,$msg);
         }
         $resultById = $this->transaction->get($id);
         if($resultById == null){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Get transaction with id = '.$id,
-            'data'      => $resultById
-        ];
+        $msg = $resultById;
         return $this->status(200,$msg);
     }
     public function postEdit(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $id = (int)$_REQUEST['id'];
         if($id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      =>  null
-            ];
+            $msg = 'Id not filled in';
             return $this->status(500,$msg);
         }
         $resultById = $this->transaction->get($id);
         if($resultById == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'transaction not exist',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
         $data = [
@@ -134,18 +90,10 @@ class transactionController extends BaseController{
         ];
         $result = $this->transaction->update($id,$data);
         if($result == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'update transaction fail',
-                'data'      => null
-            ];
+            $msg =  'Update transaction fail';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'update transaction success',
-            'data'      => null
-        ];
+        $msg =  'Update transaction success';
         return $this->status(200,$msg);
     }
 }

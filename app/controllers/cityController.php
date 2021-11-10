@@ -27,7 +27,8 @@ class cityController extends BaseController{
         return $this->status(200,$msgs);
     }
     public function postAdd(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = $this->validate->add($req);
         if(count($msgs) > 0){
             $msg = [
@@ -61,7 +62,6 @@ class cityController extends BaseController{
         return $this->status(200,$msg);
     }  
     public function getEdit(){
-        $req = $_POST;
         $id = (int)$_REQUEST['id'];
         if($id == 0){
             $msg = [
@@ -88,7 +88,8 @@ class cityController extends BaseController{
         return $this->status(200,$msg);
     }
     public function postEdit(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $id = (int)$_REQUEST['id'];
         if($id ==0){
             $msg = [

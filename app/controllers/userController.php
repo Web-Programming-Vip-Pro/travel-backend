@@ -21,17 +21,13 @@ use Storage\Helper;
 class userController extends BaseController
 {
     private $user;
-    private $middleware;
     private $validate;
-    private $helper;
     private $authenticationService;
     private $userService;
     public function __construct()
     {
         $this->user         = new UserModel();
-        $this->middleware   = new Middleware();
         $this->validate     = new UserValidate();
-        $this->helper       = new Helper();
         $this->authenticationService = new AuthenticationService();
         $this->userService = new UserService();
     }
@@ -48,98 +44,58 @@ class userController extends BaseController
         $token = $arr[1];
         $jwt = $this->authenticationService->decodeJWTToken($token);
         if($jwt == null){
-            $msg = [
-                'status'    => 'Unauthorized',
-                'msg'       => 'You are not loged in',
-                'data'      => null
-            ];
+            $msg =  'You are not loged in';
             return $this->status(401,$msg);
         }  
         // when accessed,get data users
-        $msg = [
-            'status'    => 'success',
-            'msg'       => 'Get jwt user',
-            'data'      => $jwt
-        ];
+        $msg = $jwt;
         return $this->status(200,$msg);
     }
     public function list()
     {   
         // when accessed,get data users
         $result = $this->user->get();
-        $msg = [
-            'status'    => 'success',
-            'msg'       => 'Get list users',
-            'data'      => $result
-        ];
+        $msg = $result;
         return $this->status(200,$msg);
     }
-    
     public function postAdd()
     {
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = $this->validate->add($req);
         if(count($msgs) >0){
-            $msg=[
-                'status'    => 'error',
-                'msg'       => 'Some field not fill in',
-                'data'      => $msgs
-            ];
+            $msg= $msgs;
             return $this->status(422,$msg);
         }
         $data = $this->userService->add($req);
         $resultByEmail = $this->user->getByEmail($data['email']);
         if($resultByEmail != false){
-            $msg=[
-                'status'    =>  'error',
-                'msg'       =>  'User existed',
-                'data'      =>  null
-            ];
+            $msg='User existed';
             return $this->status(500,$msg);
         }
         $result = $this->user->create($data);
         if($result == true){
             $payload = $this->user->getByEmail($data['email']);
             $JWT = $this->authenticationService->generateJWTToken($payload);
-            $msg=[
-                'status'    =>'Created',
-                'msg'       =>'Add user to database success',
-                'data'      => $JWT
-            ];
+            $msg = $JWT;
             return $this->status(201,$msg);
         }
-        $msg=[
-            'status'    => 'error',
-            'msg'       =>'Add user to database fail',
-            'data'      => null
-        ];
+        $msg = 'Add user to database fail';
         return $this->status(500,$msg);
     }
     public function getEdit()
     {   
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
-            ];
+            $msg = 'Id not fill in';
             return $this->status(500,$msg);
         }
         $result = $this->user->get($id);
         if($result == null){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Get user by id',
-            'data'      => $result
-        ];
+        $msg = $result;
         return $this->status(200,$msg);
     }
     /*
@@ -149,139 +105,84 @@ class userController extends BaseController
     */
     public function postEdit()
     {
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $id = (int)$_REQUEST['id'];
         // check param có id không
         if($id == 0){
-            $msg =[
-                'status'    => 'error',
-                'msg'       =>  'Id not filled in',
-                'data'      => null, 
-            ];
+            $msg = 'Id not filled in';
             return $this->status(500,$msg);
         }
         $resultGetById = $this->user->get($id);
         // check user co ton tai khong ?
         if($resultGetById == null){
-            $msg=[
-                'status'    => 'error',
-                'msg'       =>  'Id not exactly',
-                'data'      => null, 
-            ];
+            $msg= 'Id not exactly';
             return $this->status(500,$msg);
         }
         // check email đã tồn tại chưa ?
         if($resultGetById['email'] != $req['email']){
             $resultByEmail = $this->user->getByEmail($req['email']);
             if($resultByEmail != false){
-                $msg = [
-                    'status'    => 'error',
-                    'msg'       =>  'User existed',
-                    'data'      => null, 
-                ];
+                $msg =  'User existed';
                 return $this->status(500,$msg);
             }
         }
         // validator
         $msgs = $this->validate->edit($req);
         if(count($msgs) > 0){
-            $msg=[
-                'status'    => 'error',
-                'msg'       => 'Some field not fill in',
-                'data'      => $msgs
-            ];
+            $msg= $msgs;
             return $this->status(422,$msg);
         }
         // data req
         $data = $this->userService->edit($req);
         $result = $this->user->update($id,$data);
         if($result == true){
-            $msg = [
-                'status'    => 'success', 
-                'msg'       => 'Update user success',
-                'data'      => null
-            ];
+            $msg = 'Update user success';
             return $this->status(200,$msg);
         }
-        $msg = [
-            'status'    => 'error', 
-            'msg'       => 'Update user error',
-            'data'      => null
-        ];
+        $msg = 'Update user error';
         return $this->status(500,$msg);
     }
     public function delete()
     {
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $data=[
-                'status'    => 'error',
-                'msg'       =>  'Id not filled in',
-                'data'      => null, 
-            ];
+            $data = 'Id not filled in';
             return $this->status(500,$data);
         }
         $resultGetById = $this->user->get($id);
         if($resultGetById == null){
-            $msg = [
-                'status'    => 'error',
-                'msg'       =>  'Id not exactly',
-                'data'      => null, 
-            ];
+            $msg = 'Id not exactly';
             return $this->status(500,$msg);
         }
         $this->user->delete($id);
-        $msg = [
-            'status'    => 'success',
-            'msg'       =>  'Delete user success',
-            'data'      => null, 
-        ];
+        $msg = 'Delete user success';
         return $this->status(200,$msg);
     }
     public function login(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = $this->validate->login($req);
         if(count($msgs) > 0 ){
-            echo("mot vai truong chua dien");
-            return;
+            $msg = $msgs;
+            return $this->status(422,$msg);
         }
         $email = $req['email'];
         $password = $req['password'];
         $resultByEmail = $this->user->getByEmail($email);
         if($resultByEmail == false){
-            $msg = [
-                'status'    =>'error',
-                'msg'       => 'User not existed',
-                'data'      => null,
-            ];
+            $msg =  'User not existed';
             return $this->status(500,$msg);
         }
         $passwordHash = $resultByEmail[0]->password;
         // $verify =password_verify($password, $passwordHash;
         if(!password_verify($password, $passwordHash)) {
-            $msg = [
-                'status'    =>'error',
-                'msg'       => 'Password incorrect',
-                'data'       => null,
-            ];
+            $msg = 'Password incorrect';
             return $this->status(200,$msg);
         }
         /// Here we will transform this array into JWT:
         $jwt = $this->authenticationService->generateJWTToken($resultByEmail);
-        $role = $resultByEmail[0]->role;
-        if($role == 0 || $role == 1){
-            $msg = [
-                'status'    =>'success',
-                'msg'       => 'Return page admin',
-                'data'      => $jwt,
-            ];
-            return $this->status(200,$msg);
-        }
-        $msg = [
-            'status'    =>'success',
-            'msg'       =>'Return page admin',
-            'data'      => $jwt,
-        ];
+        $msg = $jwt;
         return $this->status(200,$msg);
     }
 }

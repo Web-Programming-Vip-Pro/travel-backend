@@ -20,30 +20,18 @@ class wishlistController extends BaseController{
     {
         $user_id = (int)$_REQUEST['id'];//get user_id qua token
         $result = $this->wishlist->getForUser($user_id);
-        $msgs = [
-            'status'    =>  'success',
-            'msg'       =>  'Get wishlist',
-            'data'      =>  $result
-        ];
+        $msgs =  $result;
         return $this->status(200,$msgs);
     }
     public function postAdd(){
         $place_id = (int)$_REQUEST['id'];
         if($place_id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      =>  null
-            ];
+            $msg = 'Id not fill in';
             return $this->status(500,$msg);
         }
         $resultByIdPlace = $this->place->get($place_id);
         if($resultByIdPlace == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Place not existed',
-                'data'      => null
-            ];
+            $msg = 'Place not existed';
             return $this->status(500,$msg);
         }
         $data=[
@@ -52,53 +40,29 @@ class wishlistController extends BaseController{
         ];
         $result = $this->wishlist->create($data);
         if($result == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Error add wishlist',
-                'data'      => null
-            ];
+            $msg =  'Error add wishlist';
             return $this->status(500,$msg);
         }
-        $msg = [    
-            'status'    => ' success',
-            'msg'       => 'Add wishlist success',
-            'data'      => null
-        ]; 
+        $msg = 'Add wishlist success';
         return $this->status(200,$msg);
     }  
     public function delete(){
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
-            ];
+            $msg = 'Id not fill in';
             return $this->status(500,$msg);
         }
         $resultGetById = $this->city->get($id);
         if($resultGetById == null){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg =  'Id not existed';
             return $this->status(500,$msg);
         }
         $result = $this->wishlist->delete($id);
         if($result == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'delete city fail',
-                'data'      => null
-            ];
+            $msg = 'Delete wishlist fail';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Delete city success',
-            'data'      => null
-        ];
+        $msg = "Delete wishlist success";
         return $this->status(200,$msg);
     }
 }

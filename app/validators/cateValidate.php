@@ -13,10 +13,10 @@ class CateValidate{
     public function add($req){
         $msg = [];
         if (!isset($req['title'])) {
-            array_push($msg, 'Vui lòng điền tên category');
+            array_push($msg, 'Please fill out name category');
         }
         if (!isset($req['description'])) {
-            array_push($msg, 'Vui lòng điền miêu tả');
+            array_push($msg, 'Please fill out description');
         }
         return $msg;
 
@@ -24,10 +24,10 @@ class CateValidate{
     public function edit($req){
         $msg = [];
         if (!isset($req['title'])) {
-            array_push($msg, 'Vui lòng điền tên category');
+            array_push($msg, 'Please fill out name category');
         }
         if (!isset($req['description'])) {
-            array_push($msg, 'Vui lòng điền miêu tả');
+            array_push($msg, 'Please fill out description');
         }
         return $msg;
     }       

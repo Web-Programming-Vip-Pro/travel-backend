@@ -15,27 +15,20 @@ class reportController extends BaseController{
     public function index()
     {
         $result= $this->report->get();
-        $msgs = [
-            'status'    =>  'success',
-            'msg'       =>  'Get report',
-            'data'      =>  $result
-        ];
-        return $this->status(200,$msgs);
+        $msg =  $result;
+        return $this->status(200,$msg);
     }
     // add report with agency_id
     public function postAdd(){
         $agency_id = (int)$_REQUEST['id'];
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = [];
         if(!$req['message'] || trim($req['message']) == ''){
             array_push($msgs,'Please fill out message');
         }
         if(count($msgs) > 0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not fill in',
-                'data'      => $msgs
-            ];
+            $msg = 'Some fielt not filled in';
             return $this->status(422,$msg);
         } 
         $data = [
@@ -45,18 +38,10 @@ class reportController extends BaseController{
         ];
         $result = $this->report->create($data);
         if($result == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Error add report',
-                'data'      => null
-            ];
+            $msg= 'Add report to database fail';
             return $this->status(500,$msg);
         }
-        $msg = [    
-            'status'    => ' success',
-            'msg'       => 'Add report success',
-            'data'      => null
-        ]; 
+        $msg= 'Add report to database success';
         return $this->status(200,$msg);
     }  
 }

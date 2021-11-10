@@ -16,11 +16,7 @@ class notifyController extends BaseController{
     {
         $user_id = 1;
         $result= $this->notify->get($user_id);
-        $msgs = [
-            'status'    =>  'success',
-            'msg'       =>  'Get notify',
-            'data'      =>  $result
-        ];
-        return $this->status(200,$msgs);
+        $msg = $result;
+        return $this->status(200,$msg);
     }
 }

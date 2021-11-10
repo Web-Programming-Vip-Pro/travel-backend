@@ -50,4 +50,7 @@ $router->get("/wishlist/delete.*?",'wishlistController@getEdit');// @param id_wi
 // route group review
 $router->get("/review.*?",'reviewController@index'); // @param id_place
 $router->post("/review/add.*?",'reviewController@postAdd'); // @param id_place
+// route group report
+$router->get("/reports",'reportController@index'); 
+$router->post("/review/add.*?",'reportController@postAdd'); // @param id_agency
 ?>

@@ -23,23 +23,16 @@ class placeController extends BaseController{
     public function index()
     {
        $result = $this->place->get();
-       $msg = [
-           'status' =>'success',
-           'msg'    => 'Get list places',
-           'data'   =>  $result
-       ];
+       $msg = $result;
        return $this->status(200,$msg);
     }
     public function postAdd(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = $this->validate->add($req);
         if(count($msgs) >0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not filled in',
-                'data'      => $msgs
-             ];
-             return $this->status(422,$msg);
+            $msg = 'Some fielt not filled in';
+            return $this->status(422,$msg);
         }
         $data = [
             'title'         => $req['title'],
@@ -55,74 +48,43 @@ class placeController extends BaseController{
         ];
         $result = $this->place->create($data);
         if($result == false){
-            $msg=[
-                'status'    =>  'error',
-                'msg'       =>  'Add place to database fail',
-                'data'      =>  null
-            ];
+            $msg= 'Add cate to database fail';
             return $this->status(500,$msg);
         }
-        $msg=[
-            'status'    =>'Created',
-            'msg'       =>'Add place to database success',
-            'data'      => null
-        ];
+        $msg= 'Add cate to database success';
         return $this->status(200,$msg);
     }  
     public function getEdit(){
         $id = (int)$_REQUEST['id'];
         if($id == 0 ){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
-            ];
+            $msg = 'Id not filled in';
             return $this->status(500,$msg);
         }
         $result = $this->place->get($id);
         if($result == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Get user by id',
-            'data'      => $result
-        ];
+        $msg = $result;
         return $this->status(200,$msg);
         
     }
     public function postEdit(){
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $msg =[
-                'status'    => 'error',
-                'msg'       =>  'Id not filled in',
-                'data'      => null, 
-            ];
+            $msg =   'Id not fill in';
             return $this->status(500,$msg);
         }
         $resultById = $this->place->get($id);
         if($resultById == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
+            $msg = 'Id not existed';
             return $this->status(500,$msg);
         }
         $msgs = $this->validate->edit($req);
         if(count($msgs) > 0){
-            $msg=[
-                'status'    => 'error',
-                'msg'       => 'Some field not fill in',
-                'data'      => $msgs
-            ];
+            $msg =  'Some fielt not filled in';
             return $this->status(422,$msg);
         }
         $data = [
@@ -139,45 +101,25 @@ class placeController extends BaseController{
         ];
         $result = $this->place->update($id,$data);
         if($result == true){
-            $msg = [
-                'status'    => 'success', 
-                'msg'       => 'Update user success',
-                'data'      => null
-            ];
+            $msg =  'Update cate success';
             return $this->status(200,$msg);
         }
-        $msg = [
-            'status'    => 'error', 
-            'msg'       => 'Update user error',
-            'data'      => null
-        ];
+        $msg = 'Update cate error';
         return $this->status(500,$msg);
     }
     public function delete(){
         $id = (int)$_REQUEST['id'];
         if($id == 0){
-            $data=[
-                'status'    => 'error',
-                'msg'       =>  'Id not filled in',
-                'data'      => null, 
-            ];
-            return $this->status(500,$data);
+            $msg =   'Id not fill in';
+            return $this->status(500,$msg);
         }
         $resultGetById = $this->place->get($id);
         if($resultGetById == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       =>  'Id not exactly',
-                'data'      => null, 
-            ];
+            $msg =   'Id not exactly';
             return $this->status(500,$msg);
         }
         $this->place->delete($id);
-        $msg = [
-            'status'    => 'success',
-            'msg'       =>  'Delete user success',
-            'data'      => null, 
-        ];
+        $msg = 'Delete cate success';
         return $this->status(200,$msg);
     }
 }

@@ -28,24 +28,17 @@ class ReviewController extends BaseController{
     {
         $place_id = (int)$_REQUEST['id'];
         $result = $this->review->getByPlaceId($place_id);
-        $msgs = [
-            'status'    =>  'success',
-            'msg'       =>  'Get review',
-            'data'      =>  $result
-        ];
-        return $this->status(200,$msgs);
+        $msg = $result;
+        return $this->status(200,$msg);
     }
     // add review with place_id
     public function postAdd(){
         $place_id = (int)$_REQUEST['id'];
-        $req = $_POST;
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
         $msgs = $this->validate->add($req);
         if(count($msgs) > 0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not fill in',
-                'data'      => $msgs
-            ];
+            $msg = 'Some fielt not filled in';
             return $this->status(422,$msg);
         } 
         $data = [
@@ -56,11 +49,7 @@ class ReviewController extends BaseController{
         ];
         $result = $this->review->create($data);
         if($result == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Error add review',
-                'data'      => null
-            ];
+            $msg= 'Add review to database fail';
             return $this->status(500,$msg);
         }
         $place = $this->place->get($place_id);
@@ -80,11 +69,7 @@ class ReviewController extends BaseController{
             'user_id' => $place['author_id']
         ];
         $this->notify->create($dataNotify);
-        $msg = [    
-            'status'    => ' success',
-            'msg'       => 'Add review success',
-            'data'      => null
-        ]; 
+        $msg= 'Add review to database success';
         return $this->status(200,$msg);
     }  
 }
