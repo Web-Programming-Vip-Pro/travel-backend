@@ -4,8 +4,9 @@ require_once('config/config.php');
 class DB{
     private $host = DB_HOST;
     private $username = DB_USER;
-    private $password = DB_PASSWORD; 
-    private $databaseName = DB_TABLE;
+    private $password = DB_PASSWORD;
+    private $databaseName = DB_DATABASE;
+    private $port = DB_PORT;
     private $charset = 'utf8';
     private $conn;
     /**
@@ -23,7 +24,7 @@ class DB{
     public function connect()
     {
         if(!$this->conn){
-            $this->conn = mysqli_connect($this->host,$this->username,$this->password,$this->databaseName);
+            $this->conn = mysqli_connect($this->host, $this->username, $this->password, $this->databaseName, $this->port);
             if (mysqli_connect_errno()) {
                 echo 'Failed: '. mysqli_connect_error();
                 die();
