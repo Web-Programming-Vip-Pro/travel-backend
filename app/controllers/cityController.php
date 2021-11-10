@@ -2,177 +2,37 @@
 
 namespace App\Controllers;
 
-include_once('app/models/cityModel.php');
-include_once('core/http/Container.php');
-require_once('app/validators/cityValidate.php');
+require_once('core/http/Container.php');
+require_once('app/services/cityService.php');
 
-use App\Models\CityModel;
 use Core\Http\BaseController;
-use App\Validator\CityValidate;
+use App\Services\CityService;
 class cityController extends BaseController{
-    private $city;
-    private $validate;
+    private $cityService;
     public function __construct(){
-        $this->city = new CityModel();
-        $this->validate = new CityValidate();
+        $this->cityService = new CityService();
     }
     public function index()
     {
-        $result = $this->city->get();
-        $msgs = [
-            'status'    =>  'success',
-            'msg'       =>  'Get city',
-            'data'      =>  $result
-        ];
-        return $this->status(200,$msgs);
+        return $this->cityService->list();
     }
     public function postAdd(){
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 
-        $msgs = $this->validate->add($req);
-        if(count($msgs) > 0){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Some fielt not fill in',
-                'data'      => $msgs
-            ];
-            return $this->status(422,$msg);
-        } 
-        $data = [
-            'name'          => $req['name'],
-            'country_id'    => $req['country_id'],
-            'description'   => $req['description'],
-            'total_places'  => 0,
-            'image_cover'   => 'image',
-        ];
-        $result = $this->city->create($data);
-        if($result == false){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Error add city',
-                'data'      => null
-            ];
-            return $this->status(500,$msg);
-        }
-        $msg = [    
-            'status'    => ' success',
-            'msg'       => 'Add city success',
-            'data'      => null
-        ]; 
-        return $this->status(200,$msg);
+       return $this->cityService->add($req);
     }  
     public function getEdit(){
         $id = (int)$_REQUEST['id'];
-        if($id == 0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      =>  null
-            ];
-            return $this->status(500,$msg);
-        }
-        $resultById = $this->city->get($id);
-        if($resultById == null){
-            $msg = [
-                'status'    => 'error',
-                'msg'       => 'Id not existed',
-                'data'      => null
-            ];
-            return $this->status(500,$msg);
-        }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Get city with id = '.$id,
-            'data'      => $resultById
-        ];
-        return $this->status(200,$msg);
+        return $this->cityService->getEdit($id);
     }
     public function postEdit(){
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 
         $id = (int)$_REQUEST['id'];
-        if($id ==0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      =>  null
-            ];
-            return $this->status(500,$msg);
-        }
-        $resultById = $this->city->get($id);
-        if($resultById == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'City not exist',
-                'data'      => null
-            ];
-            return $this->status(500,$msg);
-        }
-        $msgs = $this->validate->edit($req);
-        if(count($msgs) > 0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Some fielt not pill in',
-                'data'      => $msgs
-            ];
-            return $this->status(422,$msg);
-        } 
-        $data = [
-            'name'          => $req['name'],
-            'country_id'    => $req['country_id'],
-            'description'   => $req['description'],
-            'total_places'  => 0,
-            'image_cover'   => 'image',
-        ];
-        $result = $this->city->update($id,$data);
-        if($result == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'update city fail',
-                'data'      => null
-            ];
-            return $this->status(500,$msg);
-        }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'update city success',
-            'data'      => null
-        ];
-        return $this->status(200,$msg);
+       return $this->cityService->postEdit($id,$req);
     }
     public function delete(){
         $id = (int)$_REQUEST['id'];
-        if($id == 0){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not fill in',
-                'data'      => null
-            ];
-            return $this->status(500,$msg);
-        }
-        $resultGetById = $this->city->get($id);
-        if($resultGetById == null){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'Id not existed',
-                'data'      => null
-            ];
-            return $this->status(500,$msg);
-        }
-        $result = $this->city->delete($id);
-        if($result == false){
-            $msg = [
-                'status'    =>  'error',
-                'msg'       =>  'delete city fail',
-                'data'      => null
-            ];
-            return $this->status(500,$msg);
-        }
-        $msg = [
-            'status'    =>  'success',
-            'msg'       =>  'Delete city success',
-            'data'      => null
-        ];
-        return $this->status(200,$msg);
+       return $this->cityService->delete($id);
     }
 }

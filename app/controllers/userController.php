@@ -4,19 +4,15 @@ namespace App\Controllers;
 
 require_once('app/models/userModel.php');
 require_once('core/http/Container.php');
-require_once('app/middleware/middleware.php');
 require_once('app/validators/userValidate.php');
 require_once('app/services/authenticationService.php');
 require_once('app/services/userService.php');
 require_once('vendor/autoload.php');
-require_once('storage/helper.php'); 
 use App\Models\UserModel;
 use Core\Http\BaseController;
-use App\Middleware\Middleware;
 use App\Validator\UserValidate;
 use App\Services\AuthenticationService;
 use App\Services\UserService;
-use Storage\Helper;
 
 class userController extends BaseController
 {
@@ -134,7 +130,7 @@ class userController extends BaseController
             return $this->status(422,$msg);
         }
         // data req
-        $data = $this->userService->edit($req);
+        $data = $this->userService->postEdit($req);
         $result = $this->user->update($id,$data);
         if($result == true){
             $msg = 'Update user success';

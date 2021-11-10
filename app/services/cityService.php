@@ -3,34 +3,34 @@
 namespace App\Services;
 
 require_once('core/http/Container.php');
-require_once('app/models/categoryModel.php');
-require_once('app/validators/cateValidate.php');
+require_once('app/models/cityModel.php');
+require_once('app/validators/cityValidate.php');
 require_once('app/middleware/middleware.php');
 
-use App\Models\CategoryModel;
-use App\Validator\CateValidate;
-use Core\Http\BaseController;
+use App\Models\CityModel;
+use App\Validator\CityValidate;
 use App\Middleware\Middleware;
-class CategoryService
+use Core\Http\BaseController;
+class CityService
 {
-    private $category;
+    private $city;
     private $validate;
-    private $container;
     private $middleware;
+    private $container;
     private $user;
     public function __construct()
     {
         $this->container    = new BaseController();
-        $this->validate     = new CateValidate();
-        $this->category     = new CategoryModel();
+        $this->validate     = new CityValidate();
+        $this->city         = new CityModel();
         $this->middleware   = new Middleware();
-        $this->user = $this->middleware->handleAdmin();
+        $this->user         = $this->middleware->handleAdmin();
     }
     public function list(){
         if($this->user == false){
             return $this->container->status(401,"Unauthorized");
         }
-        $result = $this->category->get();
+        $result = $this->city->get();
         return $this->container->status(200,$result);
     }
     public function add($req)
@@ -43,18 +43,22 @@ class CategoryService
             return $this->container->status(422,$msgs);
         }
         $data = [
-            'title'         => $req['title'],
-            'description'   => $req['description']
+            'name'          => $req['name'],
+            'country_id'    => $req['country_id'],
+            'description'   => $req['description'],
+            'total_places'  => 0,
+            'image_cover'   => 'image',
         ];
-        $result = $this->category->create($data);
+        // image
+        $result = $this->city->create($data);
         if($result == false){
-            $msg= 'Add cate to database fail';
+            $msg= 'Add city to database fail';
             return $this->container->status(500,$msg);
         }
-        $msg= 'Add cate to database success';
+        $msg= 'Add city to database success';
         return $this->container->status(200,$msg);
     }
-    // function get edit  category 
+    // function get edit  city 
     public function getEdit($id){
         if($this->user == false){
             return $this->container->status(401,"Unauthorized");
@@ -63,10 +67,10 @@ class CategoryService
         if($msgHandleId != false){
             return $this->container->status(500,$msgHandleId);
         }
-        $msg = $this->category->get($id);
+        $msg = $this->city->get($id);
         return $this->container->status(200,$msg);
     }
-    // function post edit category
+    // function post edit city
     public function postEdit($id,$req)
     {
         if($this->user == false){
@@ -81,18 +85,21 @@ class CategoryService
             return $this->container->status(422,$msgs);
         }
         $data = [
-            'title'         => $req['title'],
-            'description'   => $req['description']
+            'name'          => $req['name'],
+            'country_id'    => $req['country_id'],
+            'description'   => $req['description'],
+            'total_places'  => 0,
+            'image_cover'   => 'image',
         ];
-        $result = $this->category->update($id,$data);
+        $result = $this->city->update($id,$data);
         if($result == true){
-            $msg =  'Update cate success';
+            $msg =  'Update city success';
             return $this->container->status(200,$msg);
         }
-        $msg = 'Update cate error';
+        $msg = 'Update city error';
         return $this->container->status(500,$msg);
     }
-    // function delete category
+    // function delete city
     public function delete ($id){
         if($this->user == false){
             return $this->container->status(401,"Unauthorized");
@@ -101,8 +108,8 @@ class CategoryService
         if($msgHandleId != false){
             return $this->container->status(500,$msgHandleId);
         }
-        $this->category->delete($id);
-        $msg = 'Delete cate success';
+        $this->city->delete($id);
+        $msg = 'Delete city success';
         return $this->container->status(200,$msg);
     }
     // fucntion handle validate 
@@ -123,7 +130,7 @@ class CategoryService
         if($id == 0){
             return 'Id not fill in';
         }
-        $resultGetById = $this->category->get($id);
+        $resultGetById = $this->city->get($id);
         if($resultGetById == null){
             return  'Id not exactly';
         }

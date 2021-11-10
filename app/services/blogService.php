@@ -3,34 +3,34 @@
 namespace App\Services;
 
 require_once('core/http/Container.php');
-require_once('app/models/categoryModel.php');
-require_once('app/validators/cateValidate.php');
+require_once('app/models/blogModel.php');
+require_once('app/validators/blogValidate.php');
 require_once('app/middleware/middleware.php');
 
-use App\Models\CategoryModel;
-use App\Validator\CateValidate;
-use Core\Http\BaseController;
+use App\Models\BlogModel;
+use App\Validator\BlogValidate;
 use App\Middleware\Middleware;
-class CategoryService
+use Core\Http\BaseController;
+class blogService
 {
-    private $category;
+    private $blog;
     private $validate;
-    private $container;
     private $middleware;
+    private $container;
     private $user;
     public function __construct()
     {
         $this->container    = new BaseController();
-        $this->validate     = new CateValidate();
-        $this->category     = new CategoryModel();
+        $this->validate     = new BlogValidate();
+        $this->blog         = new blogModel();
         $this->middleware   = new Middleware();
-        $this->user = $this->middleware->handleAdmin();
+        $this->user         = $this->middleware->handleAdmin();
     }
     public function list(){
         if($this->user == false){
             return $this->container->status(401,"Unauthorized");
         }
-        $result = $this->category->get();
+        $result = $this->blog->get();
         return $this->container->status(200,$result);
     }
     public function add($req)
@@ -44,17 +44,22 @@ class CategoryService
         }
         $data = [
             'title'         => $req['title'],
-            'description'   => $req['description']
+            'content'       => $req['content'],
+            'description'   => $req['description'],
+            'author_id'     => 1,
+            'category_id'   => $req['category_id'],
+            'status'        => 0,
         ];
-        $result = $this->category->create($data);
+        // image
+        $result = $this->blog->create($data);
         if($result == false){
-            $msg= 'Add cate to database fail';
+            $msg= 'Add blog to database fail';
             return $this->container->status(500,$msg);
         }
-        $msg= 'Add cate to database success';
+        $msg= 'Add blog to database success';
         return $this->container->status(200,$msg);
     }
-    // function get edit  category 
+    // function get edit  blog 
     public function getEdit($id){
         if($this->user == false){
             return $this->container->status(401,"Unauthorized");
@@ -63,10 +68,10 @@ class CategoryService
         if($msgHandleId != false){
             return $this->container->status(500,$msgHandleId);
         }
-        $msg = $this->category->get($id);
+        $msg = $this->blog->get($id);
         return $this->container->status(200,$msg);
     }
-    // function post edit category
+    // function post edit blog
     public function postEdit($id,$req)
     {
         if($this->user == false){
@@ -82,17 +87,21 @@ class CategoryService
         }
         $data = [
             'title'         => $req['title'],
-            'description'   => $req['description']
+            'content'       => $req['content'],
+            'description'   => $req['description'],
+            'author_id'     => 1,
+            'category_id'   => $req['category_id'],
+            'status'        => 0,
         ];
-        $result = $this->category->update($id,$data);
+        $result = $this->blog->update($id,$data);
         if($result == true){
-            $msg =  'Update cate success';
+            $msg =  'Update blog success';
             return $this->container->status(200,$msg);
         }
-        $msg = 'Update cate error';
+        $msg = 'Update blog error';
         return $this->container->status(500,$msg);
     }
-    // function delete category
+    // function delete blog
     public function delete ($id){
         if($this->user == false){
             return $this->container->status(401,"Unauthorized");
@@ -101,8 +110,8 @@ class CategoryService
         if($msgHandleId != false){
             return $this->container->status(500,$msgHandleId);
         }
-        $this->category->delete($id);
-        $msg = 'Delete cate success';
+        $this->blog->delete($id);
+        $msg = 'Delete blog success';
         return $this->container->status(200,$msg);
     }
     // fucntion handle validate 
@@ -123,7 +132,7 @@ class CategoryService
         if($id == 0){
             return 'Id not fill in';
         }
-        $resultGetById = $this->category->get($id);
+        $resultGetById = $this->blog->get($id);
         if($resultGetById == null){
             return  'Id not exactly';
         }
