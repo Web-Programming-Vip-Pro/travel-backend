@@ -39,12 +39,12 @@ $router->get("/place/edit.*?",'placeController@getEdit');
 $router->post("/place/edit.*?",'placeController@postEdit');
 $router->get("/place/delete.*?",'placeController@delete');
 // route group transaction
-$router->get("/transaction.*?",'transactionController@index'); // @param id_user
+$router->get("/transactions",'transactionController@index'); // @param id_user
 $router->post("/transaction/add.*?",'transactionController@postAdd'); // @param id_place
 $router->get("/transaction/edit.*?",'transactionController@getEdit');// @param id_transaction
 $router->post("/transaction/edit.*?",'transactionController@postEdit');// @param  id_transaction
 // route group wishlist
-$router->get("/wishlist.*?",'wishlistController@index'); // @param id_user
+$router->get("/wishlists",'wishlistController@index'); // @param id_user
 $router->post("/wishlist/add.*?",'wishlistController@postAdd'); // @param id_place
 $router->get("/wishlist/delete.*?",'wishlistController@getEdit');// @param id_wishlist
 // route group review
@@ -53,4 +53,6 @@ $router->post("/review/add.*?",'reviewController@postAdd'); // @param id_place
 // route group report
 $router->get("/reports",'reportController@index'); 
 $router->post("/review/add.*?",'reportController@postAdd'); // @param id_agency
+// route group notify
+$router->get("/notify",'notifyController@index'); 
 ?>
