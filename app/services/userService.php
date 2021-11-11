@@ -14,6 +14,9 @@ class UserService
         $this->container = new BaseController();
         $this->helper       = new Helper();
     }
+    public function list(){
+        
+    }
     public function add($req)
     {
         $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
@@ -32,10 +35,10 @@ class UserService
         $data['social'] = $this->helper->jsonEncodeSocial($req);
         return $data;
     }
-    public function handleMessage($status,$msg,$data){
+    public function getEdit($id){
 
     }
-    public function edit($req)
+    public function postEdit($req)
     {
         $data =[
             "name"  => $req["name"],
@@ -65,5 +68,27 @@ class UserService
             ];
             return $this->container->status(500,$data);
         }
+    }
+    public function handleValidator($req,$action){
+        $msgs = null;
+        if($action == 'add'){
+            $msgs = $this->validate->add($req); 
+        }else{
+            $msgs = $this->validate->edit($req); 
+        }
+        if(count($msgs) > 0){
+            return $msgs;
+        } 
+        return false;
+    }
+    public function handleId($id){
+        if($id == 0){
+            return 'Id not fill in';
+        }
+        $resultGetById = $this->category->get($id);
+        if($resultGetById == null){
+            return  'Id not exactly';
+        }
+        return false;
     }
 }
