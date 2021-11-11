@@ -55,7 +55,7 @@ class UserService
     public function add($req)
     {
         if($this->userMiddle == false){
-            return $this->container->status(401,"Unauthorized");
+            return $this->controller->status(401,"Unauthorized");
         }
         $msg = $this->handleValidator($req,'add');
         if($msg != false){
@@ -91,7 +91,7 @@ class UserService
     }
     public function getEdit($id){
         if($this->userMiddle == false){
-            return $this->container->status(401,"Unauthorized");
+            return $this->controller->status(401,"Unauthorized");
         }
         $msg = $this->handleId($id);
         if($msg != false){
@@ -103,7 +103,7 @@ class UserService
     public function postEdit($id,$req)
     {
         if($this->userMiddle == false){
-            return $this->container->status(401,"Unauthorized");
+            return $this->controller->status(401,"Unauthorized");
         }
         $msg = $this->handleId($id);
         if($msg != false){
@@ -141,7 +141,7 @@ class UserService
     }
     public function delete ($id){
         if($this->userMiddle  == false){
-            return $this->container->status(401,"Unauthorized");
+            return $this->controller->status(401,"Unauthorized");
         }
         $msg = $this->handleId($id);
         if($msg != false){
