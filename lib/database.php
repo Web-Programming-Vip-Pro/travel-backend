@@ -24,7 +24,7 @@ class DB{
     public function connect()
     {
         if(!$this->conn){
-            $this->conn = mysqli_connect($this->host, $this->username, $this->password, $this->databaseName, $this->port);
+            $this->conn = mysqli_connect($this->host, $this->username, $this->password, $this->databaseName,$this->port);
             if (mysqli_connect_errno()) {
                 echo 'Failed: '. mysqli_connect_error();
                 die();
