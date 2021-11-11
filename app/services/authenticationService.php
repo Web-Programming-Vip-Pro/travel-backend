@@ -27,7 +27,7 @@ class AuthenticationService
         $payload = array(
             'iat' => $iat,
             'exp' => $exp,
-            'user' => $user
+            'user' => $user[0]
         );
         return JWT::encode($payload, $this->secretKey, $this->algorithm);
     }
