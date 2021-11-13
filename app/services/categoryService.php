@@ -27,9 +27,6 @@ class CategoryService
         $this->user = $this->middleware->handleAdmin();
     }
     public function list(){
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
-        }
         $result = $this->category->get();
         return $this->container->status(200,$result);
     }

@@ -2,21 +2,18 @@
 
 namespace App\Controllers;
 
-include_once('app/models/notifyModel.php');
-include_once('core/http/Container.php');
-use App\Models\NotifyModel;
+require_once('core/http/Container.php');
+require_once('app/services/notifyService.php');
 use Core\Http\BaseController;
+use App\Services\NotifyService;
 class notifyController extends BaseController{
-    private $notify;
+    private $notifyService;
     public function __construct(){
-        $this->notify = new NotifyModel();
+        $this->notifyService = new NotifyService();
     }
     // get all notify with user_id
     public function index()
     {
-        $user_id = 1;
-        $result= $this->notify->get($user_id);
-        $msg = $result;
-        return $this->status(200,$msg);
+        return $this->notifyService->list();
     }
 }

@@ -8,14 +8,14 @@ require_once('app/validators/placeValidate.php');
 require_once('app/middleware/middleware.php');
 
 use App\Models\PlaceModel;
-use App\Validator\PlaceValidate;
 use App\Middleware\Middleware;
+use App\Validator\PlaceValidate;
 use Core\Http\BaseController;
 class PlaceService
 {
     private $place;
-    private $validate;
     private $middleware;
+    private $validate;
     private $container;
     private $user;
     public function __construct()
@@ -27,9 +27,6 @@ class PlaceService
         $this->user         = $this->middleware->handleAgency();
     }
     public function list(){
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
-        }
         $result = $this->place->get();
         return $this->container->status(200,$result);
     }

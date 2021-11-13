@@ -5,7 +5,7 @@ use Database\DB;
 
 class NotifyModel {
     public $conn;
-    private $table = 'tb_report';
+    private $table = 'tb_notify';
     public function __construct(){
         $this->conn = new DB();
     }
