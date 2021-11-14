@@ -24,9 +24,6 @@ class UserValidate{
         if(isset($req['password']) && $req['password'] != $req['repassword']){
             array_push($msg,'Password not matched');
         }
-        if(!isset($req['role']) || trim($req['role']) == ''){
-            array_push($msg,'Please fill out role');
-        }
         return $msg;
 
     }        
@@ -40,9 +37,6 @@ class UserValidate{
         }
         if(isset($req['password']) && $req['password'] != $req['repassword']){
             array_push($msg,'Password not matched');
-        }
-        if(!isset($req['role']) || trim($req['role']) == ''){
-            array_push($msg,'Please fill out role');
         }
         return $msg;
     }       

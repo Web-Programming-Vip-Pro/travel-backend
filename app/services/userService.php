@@ -32,6 +32,7 @@ class UserService
         $this->authenticationService = new AuthenticationService();
         $this->middleware       = new Middleware();
         $this->userMiddle         = $this->middleware->handle();
+        $this->adminMiddle      = $this->middleware->handleAdmin();
     }
     public function index(){
         $authHeader = apache_request_headers()['Authorization'];
@@ -54,7 +55,7 @@ class UserService
     }
     public function add($req)
     {
-        if($this->userMiddle == false){
+        if($this->adminMiddle == false){
             return $this->controller->status(401,"Unauthorized");
         }
         $msg = $this->handleValidator($req,'add');
@@ -71,8 +72,7 @@ class UserService
             "name"              => $req["name"],
             "email"             => $req["email"],
             "password"          => $hashed_password,
-            "bio"               => 'bio',
-            "role"              => 0,
+            "bio"               => $req["bio"],
             "avatar"            => 'avatar',
             "status_agency"     => 0,
             "image_cover"       => 'image_cover',
@@ -122,9 +122,15 @@ class UserService
         $data['info'] = $this->helper->jsonEncodeInfo($req);
         $data['social'] = $this->helper->jsonEncodeSocial($req);
         if($this->userMiddle->role == 2){
-            $data['role']           = $req['role'];
-            $data['status_agency']  = $req['status_agency'];
-            $data['blocked']        = $req['blocked'];
+            if(isset($req['role'])){
+                $data['role']           = $req['role'];
+            }
+            if(isset($req['status_agency'])){
+                $data['status_agency']  = $req['status_agency'];
+            }
+            if(isset($req['blocked'])){
+                $data['blocked']        = $req['blocked'];
+            }
         }
         // nếu có password mới update
         if(isset($req['password']) && $req['password'] == $req['repassword']){
@@ -140,7 +146,7 @@ class UserService
         return $this->controller->status(500,$msg);
     }
     public function delete ($id){
-        if($this->userMiddle  == false){
+        if($this->adminMiddle  == false){
             return $this->controller->status(401,"Unauthorized");
         }
         $msg = $this->handleId($id);
@@ -185,10 +191,6 @@ class UserService
             "name"              => $req["name"],
             "email"             => $req["email"],
             "password"          => $hashed_password,
-            "bio"               => 'bio',
-            "avatar"            => 'avatar',
-            "status_agency"     => 0,
-            "image_cover"       => 'image_cover',
         ];
         $resultByEmail = $this->user->getByEmail($data['email']);
         if($resultByEmail != false){

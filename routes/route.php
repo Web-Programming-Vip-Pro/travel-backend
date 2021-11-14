@@ -21,7 +21,7 @@ $router->get("/category/edit.*?",'categoryController@getEdit');
 $router->post("/category/edit.*?",'categoryController@postEdit');
 $router->get("/category/delete.*?",'categoryController@delete');
 // route group city
-$router->get("/citys",'cityController@index');
+$router->get("/cities",'cityController@index');
 $router->post("/city/add",'cityController@postAdd');
 $router->get("/city/edit.*?",'cityController@getEdit');
 $router->post("/city/edit.*?",'cityController@postEdit');
@@ -54,5 +54,5 @@ $router->post("/review/add.*?",'reviewController@postAdd'); // @param id_place
 $router->get("/reports",'reportController@index'); 
 $router->post("/review/add.*?",'reportController@postAdd'); // @param id_agency
 // route group notify
-$router->get("/notify",'notifyController@index'); 
+$router->get("/notifies",'notifyController@index'); 
 ?>
