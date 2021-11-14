@@ -65,5 +65,17 @@ class userController extends BaseController
         $req= json_decode( $inputJSON,true ); 
         return $this->userService->register($req);
     }
+    public function forget()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->userService->forget($req);
+    }
+    public function changePassword()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->userService->changePassword($req);
+    }
 }
  

@@ -1,13 +1,15 @@
 <?php
 // route group "/user" 
 $router->get("/user",'userController@index');// get jwt
-$router->get("/users",'userController@list');// get jwt
+$router->get("/users",'userController@list');
 $router->post("/user/add",'userController@postAdd');
 $router->get("/user/edit.*?",'userController@getEdit');
 $router->post("/user/edit.*?",'userController@postEdit');
 $router->get("/user/delete.*?",'userController@delete');
 $router->post('/login','userController@login');
 $router->post('/register', 'userController@register');
+$router->post('/forget', 'userController@forget');
+$router->post('/changePassword', 'userController@changePassword');
 // route group "/country"
 $router->get("/countries",'countryController@index');
 $router->post("/country/add",'countryController@postAdd');

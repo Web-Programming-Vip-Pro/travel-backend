@@ -8,8 +8,10 @@ require_once('app/models/userModel.php');
 require_once('app/services/authenticationService.php');
 require_once('app/validators/userValidate.php');
 require_once('app/middleware/middleware.php');
+require_once('storage/sendMail.php');
 
 use Storage\Helper;
+use Storage\SendMail;
 use App\Models\UserModel;
 use Core\Http\BaseController;
 use App\Middleware\Middleware;
@@ -18,6 +20,7 @@ use App\Validator\UserValidate;
 class UserService
 {
     private $helper;
+    private $sendMail;
     private $controller;
     private $user;
     private $middleware;
@@ -27,6 +30,7 @@ class UserService
     {
         $this->controller = new BaseController();
         $this->helper       = new Helper();
+        $this->sendMail       = new SendMail();
         $this->user         = new UserModel();
         $this->validate     = new UserValidate();
         $this->authenticationService = new AuthenticationService();
@@ -174,7 +178,6 @@ class UserService
         if(!password_verify($password, $passwordHash)) {
             $msg = 'Password incorrect';
             return $this->controller->status(500,$msg);
-            return $this->controller->status(200,$msg);
         }
         /// Here we will transform this array into JWT:
         $jwt = $this->authenticationService->generateJWTToken($resultByEmail);
@@ -207,6 +210,69 @@ class UserService
         $msg = 'Add user to database fail';
         return $this->controller->status(500,$msg);
     }
+    public function forget($req){
+        $msg = $this->handleValidator($req,'forget');
+        if($msg != false){
+            return $this->controller->status(422,$msg);
+        }
+        $result = $this->user->getByEmail($req['email']);
+        if($result == false){
+            return $this->controller->status(500,"User not exactly");
+        }
+        $passReset = $this->helper->generateRandomString();
+        $toMail = $req['email'];
+        $subject = "Forget Password with " .$req['email'];
+        $body = '<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+        </head>
+        <body>
+            <h1>Your password reset.Please login with new password and change it soon.</h1>
+            <p>New Password :' .$passReset. '</p>
+        </body>
+        </html>';
+        $success = $this->sendMail->sendMail($toMail,$subject,$body);
+        if(!$success){
+            return $this->controller->status(500,"Send mail fail");
+        }
+        $data = null;
+        $hashed_password = password_hash($passReset, PASSWORD_DEFAULT);
+        $data['password'] = $hashed_password;
+        $result = $this->user->update((int)$result['id'],$data);
+        if($result == true){
+            $msg = 'Password sent to email.Please check email to using new password';
+            return $this->controller->status(200,$msg);
+        }
+        $msg = 'Reset password fail';
+        return $this->controller->status(500,$msg);
+    }
+    public function changePassword($req){
+        if($this->userMiddle == false){
+            return $this->controller->status(401,"Unauthorized");
+        }
+        $msg = $this->handleValidator($req,'changePassword');
+        if($msg != false){
+            return $this->controller->status(422,$msg);
+        }
+        $oldPassword = $req['oldPassword'];
+        // $verify =password_verify($password, $passwordHash;
+        if(!password_verify($oldPassword, $this->userMiddle->password)) {
+            $msg = 'Old password incorrect';
+            return $this->controller->status(500,$msg);
+        }
+        $data['password'] = $req['newPassword'];
+        $result = $this->user->update((int)$this->userMiddle->id,$data);
+        if($result == true){
+            $msg = 'Change password success';
+            return $this->controller->status(200,$msg);
+        }
+        $msg = 'Change password fail';
+        return $this->controller->status(500,$msg);
+    }
     public function handleValidator($req,$action){
         $msgs = null;
         if($action == 'add'){
@@ -215,8 +281,14 @@ class UserService
         if($action == 'edit'){
             $msgs = $this->validate->edit($req); 
         }
+        if($action == 'forget'){
+            $msgs = $this->validate->forget($req); 
+        }
         if($action == 'login'){
             $msgs = $this->validate->login($req); 
+        }
+        if($action == 'changePassword'){
+            $msgs = $this->validate->changePassword($req); 
         }
         if($action == 'register'){
             $msgs = $this->validate->register($req); 
@@ -225,6 +297,9 @@ class UserService
             return $msgs;
         } 
         return false;
+    }
+    public function sendMail(){
+
     }
     public function handleId($id){
         if($id == 0){

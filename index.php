@@ -22,7 +22,6 @@ require_once 'lib/database.php';
 
 use Core\Http\Route;
 use Database\DB;
-
 $router = new Route();
 $DB = new DB();
 require  'routes/route.php';
