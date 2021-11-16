@@ -11,6 +11,7 @@ use App\Models\CityModel;
 use App\Validator\CityValidate;
 use App\Middleware\Middleware;
 use Core\Http\BaseController;
+
 class CityService
 {
     private $city;
@@ -26,109 +27,115 @@ class CityService
         $this->middleware   = new Middleware();
         $this->user         = $this->middleware->handleAdmin();
     }
-    public function list(){
+    public function list()
+    {
         $result = $this->city->get();
-        return $this->container->status(200,$result);
+        return $this->container->status(200, $result);
     }
     public function add($req)
     {
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
+        if ($this->user == false) {
+            return $this->container->status(401, "Unauthorized");
         }
-        $msgs = $this->handleValidator($req,'add');
-        if($msgs != false){
-            return $this->container->status(422,$msgs);
+        $msgs = $this->handleValidator($req, 'add');
+        if ($msgs != false) {
+            return $this->container->status(422, $msgs);
         }
         $data = [
             'name'          => $req['name'],
             'country_id'    => $req['country_id'],
             'description'   => $req['description'],
             'total_places'  => 0,
-            'image_cover'   => 'image',
+            'image_cover'   => $req['images'],
         ];
         // image
         $result = $this->city->create($data);
-        if($result == false){
-            $msg= 'Add city to database fail';
-            return $this->container->status(500,$msg);
+        if ($result == false) {
+            $msg = 'Add city to database fail';
+            return $this->container->status(500, $msg);
         }
-        $msg= 'Add city to database success';
-        return $this->container->status(200,$msg);
+        $msg = 'Add city to database success';
+        return $this->container->status(200, $msg);
     }
     // function get edit  city 
-    public function getEdit($id){
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
+    public function getEdit($id)
+    {
+        if ($this->user == false) {
+            return $this->container->status(401, "Unauthorized");
         }
         $msgHandleId = $this->handleId($id);
-        if($msgHandleId != false){
-            return $this->container->status(500,$msgHandleId);
+        if ($msgHandleId != false) {
+            return $this->container->status(500, $msgHandleId);
         }
         $msg = $this->city->get($id);
-        return $this->container->status(200,$msg);
+        return $this->container->status(200, $msg);
     }
     // function post edit city
-    public function postEdit($id,$req)
+    public function postEdit($id, $req)
     {
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
+        if ($this->user == false) {
+            return $this->container->status(401, "Unauthorized");
         }
         $msgHandleId = $this->handleId($id);
-        if($msgHandleId != false){
-            return $this->container->status(500,$msgHandleId);
+        if ($msgHandleId != false) {
+            return $this->container->status(500, $msgHandleId);
         }
-        $msgs = $this->handleValidator($req,'edit');
-        if($msgs != false){
-            return $this->container->status(422,$msgs);
+        $msgs = $this->handleValidator($req, 'edit');
+        if ($msgs != false) {
+            return $this->container->status(422, $msgs);
         }
         $data = [
             'name'          => $req['name'],
             'country_id'    => $req['country_id'],
             'description'   => $req['description'],
-            'total_places'  => 0,
-            'image_cover'   => 'image',
         ];
-        $result = $this->city->update($id,$data);
-        if($result == true){
+        if(isset($req['image_cover'])){
+            $data['image_cover'] = $req['image_cover'];
+        }
+        $result = $this->city->update($id, $data);
+        if ($result == true) {
             $msg =  'Update city success';
-            return $this->container->status(200,$msg);
+            return $this->container->status(200, $msg);
         }
         $msg = 'Update city error';
-        return $this->container->status(500,$msg);
+        return $this->container->status(500, $msg);
     }
     // function delete city
-    public function delete ($id){
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
+    public function delete($id)
+    {
+        if ($this->user == false) {
+            return $this->container->status(401, "Unauthorized");
         }
         $msgHandleId = $this->handleId($id);
-        if($msgHandleId != false){
-            return $this->container->status(500,$msgHandleId);
+        if ($msgHandleId != false) {
+            return $this->container->status(500, $msgHandleId);
         }
         $this->city->delete($id);
         $msg = 'Delete city success';
-        return $this->container->status(200,$msg);
+        return $this->container->status(200, $msg);
     }
     // fucntion handle validate 
-    public function handleValidator($req,$action){
+    public function handleValidator($req, $action)
+    {
         $msgs = null;
-        if($action == 'add'){
-            $msgs = $this->validate->add($req); 
-        }else{
-            $msgs = $this->validate->edit($req); 
+        if ($action == 'add') {
+            $msgs = $this->validate->add($req);
+        } else {
+            $msgs = $this->validate->edit($req);
         }
-        if(count($msgs) > 0){
+        if (count($msgs) > 0) {
             return $msgs;
-        } 
+        }
         return false;
     }
     // fucntion handle id if not fill or not exact
-    public function handleId($id){
-        if($id == 0){
+    public function handleId($id)
+    {
+        if ($id == 0) {
             return 'Id not fill in';
         }
         $resultGetById = $this->city->get($id);
-        if($resultGetById == null){
+        if ($resultGetById == null) {
             return  'Id not exactly';
         }
         return false;

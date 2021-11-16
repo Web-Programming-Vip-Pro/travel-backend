@@ -77,9 +77,9 @@ class UserService
             "email"             => $req["email"],
             "password"          => $hashed_password,
             "bio"               => $req["bio"],
-            "avatar"            => 'avatar',
+            "avatar"            => $req['avatar'],
             "status_agency"     => 0,
-            "image_cover"       => 'image_cover',
+            "image_cover"       => $req['image_cover'],
         ];
         $data['info'] = $this->helper->jsonEncodeInfo($req);
         $data['social'] = $this->helper->jsonEncodeSocial($req);
@@ -120,9 +120,13 @@ class UserService
         $data =[
             "name"          => $req["name"],
             "bio"           => $req['bio'],
-            "avatar"        => 'avatar',
-            "image_cover"   => 'image_cover',
         ];
+        if(isset($req['avatar'])){
+            $data['avatar']  = $req['avatar'];
+        }
+        if(isset($req['image_cover'])){
+            $data['image_cover']  = $req['image_cover'];
+        }
         $data['info'] = $this->helper->jsonEncodeInfo($req);
         $data['social'] = $this->helper->jsonEncodeSocial($req);
         if($this->userMiddle->role == 2){

@@ -41,9 +41,10 @@ class blogService
         }
         $data = [
             'title'         => $req['title'],
-            'content'       => $req['content'],
             'description'   => $req['description'],
-            'author_id'     => 1,
+            'content'       => $req['content'],
+            'author_id'     => $this->user->id,
+            'image'         => $req['image'],
             'category_id'   => $req['category_id'],
             'status'        => 0,
         ];
@@ -86,10 +87,12 @@ class blogService
             'title'         => $req['title'],
             'content'       => $req['content'],
             'description'   => $req['description'],
-            'author_id'     => 1,
             'category_id'   => $req['category_id'],
-            'status'        => 0,
+            'status'        => $req['status'],
         ];
+        if(isset($req['image'])){
+            $data['image'] = $req['image'];
+        }
         $result = $this->blog->update($id,$data);
         if($result == true){
             $msg =  'Update blog success';

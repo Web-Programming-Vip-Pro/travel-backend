@@ -4,10 +4,12 @@ namespace App\Services;
 
 require_once('core/http/Container.php');
 require_once('app/models/placeModel.php');
+require_once('app/models/cityModel.php');
 require_once('app/validators/placeValidate.php');
 require_once('app/middleware/middleware.php');
 
 use App\Models\PlaceModel;
+use App\Models\CityModel;
 use App\Middleware\Middleware;
 use App\Validator\PlaceValidate;
 use Core\Http\BaseController;
@@ -18,12 +20,14 @@ class PlaceService
     private $validate;
     private $container;
     private $user;
+    private $city;
     public function __construct()
     {
         $this->container    = new BaseController();
         $this->validate     = new PlaceValidate();
         $this->place        = new PlaceModel();
         $this->middleware   = new Middleware();
+        $this->city         = new CityModel();
         $this->user         = $this->middleware->handleAgency();
     }
     public function list(){
@@ -44,14 +48,17 @@ class PlaceService
             'city_id'       => $req['city_id'],
             'type'          => $req['type'],
             'price'         => $req['price'],
-            'images'         => 'image',
+            'images'        => $req['images'],
             'location'      => $req['location'],
             'stars'         => 0.0,
             'reviews'       => 0,
             'status'        => 0,
             'author_id'     => $this->user->id,
         ];
-        // image
+        $updateCity = $this->addPlacesCity($req['city_id']);
+        if($updateCity != false){
+            return $this->container->status(500,$updateCity); 
+        }
         $result = $this->place->create($data);
         if($result == false){
             $msg= 'Add place to database fail';
@@ -91,13 +98,12 @@ class PlaceService
             'city_id'       => $req['city_id'],
             'type'          => $req['type'],
             'price'         => $req['price'],
-            'images'         => 'image',
             'location'      => $req['location'],
-            'stars'         => 0.0,
-            'reviews'       => 0,
-            'status'        => 0,
-            'author_id'     => $this->user->id,
+            'status'        => $req['status']
         ];
+        if(isset($req['images'])){
+            $data['images'] = $req['images'];
+        }
         $result = $this->place->update($id,$data);
         if($result == true){
             $msg =  'Update place success';
@@ -141,6 +147,15 @@ class PlaceService
         if($resultGetById == null){
             return  'Id not exactly';
         }
+        return false;
+    }
+    public function addPlacesCity($cityId){
+        $result = $this->city->get($cityId);
+        if($result == null){
+            return 'City not existed';
+        }
+        $data['total_places'] = $result['total_places'] +1;
+        $this->city->update($cityId,$data);
         return false;
     }
 }

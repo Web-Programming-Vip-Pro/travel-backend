@@ -16,10 +16,10 @@ class CityValidate{
             array_push($msg, 'Please fill out name');
         }
         if (!$req['country_id'] || trim($req['country_id']) == '') {
-            array_push($msg, 'Please fill out name');
+            array_push($msg, 'Please fill out country_id');
         }
         if (!$req['description'] || trim($req['description']) == '') {
-            array_push($msg, 'Please fill out name');
+            array_push($msg, 'Please fill out description');
         }
         return $msg;
 

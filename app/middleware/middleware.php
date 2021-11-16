@@ -43,7 +43,7 @@ class Middleware {
         $arr = explode(" ", $authHeader);
         $token = $arr[1];
         $jwt = $this->authenticationService->decodeJWTToken($token);
-        if($jwt->user->role == 1){
+        if($jwt->user->role != 0){
             return $jwt->user;
         }
         return false;
@@ -56,7 +56,7 @@ class Middleware {
         $arr = explode(" ", $authHeader);
         $token = $arr[1];
         $jwt = $this->authenticationService->decodeJWTToken($token);
-        if($jwt->user->role == '2'){
+        if($jwt->user->role == 0){
             return $jwt->user;
         }
         return false;
