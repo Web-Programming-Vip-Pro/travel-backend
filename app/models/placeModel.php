@@ -9,14 +9,26 @@ class PlaceModel {
     public function __construct(){
         $this->conn = new DB();
     }
-    public function get ($id = -1){
+    public function get ($id = -1,$page=0,$limit=20){
         if($id == -1){
-            return $this->conn->getArray($this->table);
+            $firstRow = $page * $limit;
+            $sql = 'SELECT * FROM '.$this->table.' LIMIT '.$firstRow.','.$limit;
+            return $this->conn->query($sql);
         }
         return $this->conn->getRowArray($this->table,$id);
     }
+    public function listType($type,$page,$limit){
+        $firstRow = $page * $limit;
+        $sql = 'SELECT * FROM '.$this->table.' WHERE `type` = '.$type. ' LIMIT '.$firstRow.','.$limit;
+        return $this->conn->query($sql);
+    }
+    public function listCity($city_id,$type,$page,$limit){
+        $firstRow = $page * $limit;
+        $sql = 'SELECT * FROM '.$this->table.' WHERE `type` = '.$type.' AND `city_id` = '.$city_id.' LIMIT '.$firstRow.','.$limit;
+        return $this->conn->query($sql);
+    }
     public function create($data){
-       return $this->conn->insert($this->table,$data);
+        return $this->conn->insert($this->table,$data);
     }
     public function update($id,$data){
         return $this->conn->update($this->table,$data,$id);

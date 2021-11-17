@@ -32,18 +32,34 @@ class ReviewService
         $this->validate     = new ReviewValidate();
         $this->middleware   = new Middleware();
         $this->user         = $this->middleware->handleUser();
+        $this->agency       = $this->middleware->handleAgency();
     }
     /**
      * param @place_id
      * return @response
      */
     public function list($id){
-        if($this->user == false){
-            return $this->controller->status(401,"Unauthorized");
-        }
         $result = $this->review->getByPlaceId($id);
         return $this->controller->status(200,$result);
     }
+    public function getAboutYou(){
+        if($this->user == false){
+            return $this->controller->status(401,"Unauthorized");
+        }
+        $agency_id = $this->agency->id;
+        $result = $this->review->getAboutYou($agency_id);
+        return $this->controller->status(200,$result);
+    }
+    
+    public function getByYou(){
+        if($this->user == false){
+            return $this->controller->status(401,"Unauthorized");
+        }
+        $user_id = $this->user->id;
+        $result = $this->review->getByYou($user_id);
+        return $this->controller->status(200,$result);
+    }  
+
     /**
      * param @place_id,@req
      * return response
@@ -56,18 +72,20 @@ class ReviewService
         if($msgs != false){
             return $this->container->status(422,$msgs);
         }
+        $place = $this->place->get($place_id);
         $data = [
             'user_id'       => $this->user->id,
             'place_id'      => $place_id,
             'rate'          => $req['rate'],
             'comment'       => $req['comment'],
+            'agency_id'     => $place['author_id']
         ];
         $result = $this->review->create($data);
         if($result == false){
             $msg= 'Add review to database fail';
             return $this->controller->status(500,$msg);
         }
-        $place = $this->place->get($place_id);
+        // update stars place
         $dataPlace = [
             'reviews'   => $place['reviews'] +1
         ];
@@ -77,10 +95,10 @@ class ReviewService
             $dataPlace['stars'] =  (float)($place['stars']+$req['rate'])/2;
         }
         $this->place->update($place_id,$dataPlace);
-        $title = $this->user->name .'commented place' .$this->place['title'];
-        echo $title;
+        // add notify for agency
+        $title = $this->user->name .'commented place ' .$this->place['title'];
         $dataNotify = [
-            'title'     => 'Your place have a new review',
+            'title'     => $title,
             'content'   => $data['comment'],
             'seen'      => false,
             'user_id'   => $place['author_id']

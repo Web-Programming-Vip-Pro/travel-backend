@@ -14,26 +14,43 @@ class placeController extends BaseController{
     }
     public function index()
     {
-       return $this->placeService->list();
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+       return $this->placeService->listALL();
+    }
+    public function listType(){
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->placeService->listType($req);
+    }
+    public function listCity(){
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->placeService->listCity($req);
+
     }
     public function postAdd(){
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 
-       return $this->placeService->add($req);
+        return $this->placeService->add($req);
     }  
     public function getEdit(){
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req = json_decode($inputJSON, true);
+        $id = (int)$req['id'];
         return $this->placeService->getEdit($id);
         
     }
     public function postEdit(){
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
-        $id = (int)$_REQUEST['id'];
+        $req = json_decode($inputJSON, true);
+        $id = (int)$req['id'];
         return $this->placeService->postEdit($id,$req);
     }
     public function delete(){
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req = json_decode($inputJSON, true);
+        $id = (int)$req['id'];
         return $this->placeService->delete($id);
     }
 }

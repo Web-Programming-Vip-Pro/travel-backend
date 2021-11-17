@@ -23,12 +23,13 @@ class countryController extends BaseController
     {
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
-        var_dump($req);
         return $this->countryService->add($req);
     }
     public function getEdit()
     {
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req = json_decode($inputJSON, true);
+        $id = (int)$req['id'];
         return $this->countryService->getEdit($id);
     }
     public function postEdit()

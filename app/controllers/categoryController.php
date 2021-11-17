@@ -22,18 +22,22 @@ class categoryController extends BaseController {
         return $this->cateService->add($req);
     }  
     public function getEdit(){
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        $id = (int)$req['id'];
         return $this->cateService->getEdit($id);
     }
     public function postEdit(){
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 
-        $id = (int)$_REQUEST['id'];
+        $id = (int)$req['id'];
         return $this->cateService->postEdit($id,$req);
         
     }
     public function delete(){
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        $id = (int)$req['id'];
         return $this->cateService->delete($id);
     }
 }

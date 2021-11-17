@@ -25,6 +25,7 @@ class WishlistService
         $this->wishlist = new WishlistModel();
         $this->middleware   = new Middleware();
         $this->user         = $this->middleware->handleAdmin();
+        echo "Hello";
     }
     public function list(){
         if($this->user == false){

@@ -29,9 +29,30 @@ class PlaceService
         $this->middleware   = new Middleware();
         $this->city         = new CityModel();
         $this->user         = $this->middleware->handleAgency();
+        $this->admin         = $this->middleware->handleAdmin();
     }
-    public function list(){
-        $result = $this->place->get();
+    public function listAll(){
+        if($this->admin == false){
+            return $this->container->status(401,"Unauthorized");
+        }
+        $page = isset($req['page']) ? (int)($req['page']) : 0;
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $result = $this->place->get(-1,$page,$limit);
+        return $this->container->status(200,$result);
+    }
+    public function listType($req){
+        $type = (isset($req['type'])) ? (int)$req['type'] : 0;
+        $page = isset($req['page']) ? (int)($req['page']) : 0;
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $result = $this->place->listType($type,$page,$limit);
+        return $this->container->status(200,$result);
+    }
+    public function listCity($req){
+        $city = (int)$req['city_id'];
+        $type = (isset($req['type'])) ? (int)$req['type'] : 0;
+        $page = isset($req['page']) ? (int)($req['page']) : 0;
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $result = $this->place->listCity($city,$type,$page,$limit);
         return $this->container->status(200,$result);
     }
     public function add($req)
@@ -50,20 +71,18 @@ class PlaceService
             'price'         => $req['price'],
             'images'        => $req['images'],
             'location'      => $req['location'],
+            'description'   => $req['description'],
             'stars'         => 0.0,
             'reviews'       => 0,
             'status'        => 0,
             'author_id'     => $this->user->id,
         ];
-        $updateCity = $this->addPlacesCity($req['city_id']);
-        if($updateCity != false){
-            return $this->container->status(500,$updateCity); 
-        }
         $result = $this->place->create($data);
         if($result == false){
             $msg= 'Add place to database fail';
             return $this->container->status(500,$msg);
         }
+        $this->addPlacesCity($req['city_id']);
         $msg= 'Add place to database success';
         return $this->container->status(200,$msg);
     }
@@ -99,8 +118,11 @@ class PlaceService
             'type'          => $req['type'],
             'price'         => $req['price'],
             'location'      => $req['location'],
-            'status'        => $req['status']
+            'description'   => $req['description'],
         ];
+        if(isset($req['status'])){
+            $data['status']        = $req['status'];
+        }
         if(isset($req['images'])){
             $data['images'] = $req['images'];
         }
@@ -151,11 +173,7 @@ class PlaceService
     }
     public function addPlacesCity($cityId){
         $result = $this->city->get($cityId);
-        if($result == null){
-            return 'City not existed';
-        }
         $data['total_places'] = $result['total_places'] +1;
         $this->city->update($cityId,$data);
-        return false;
     }
 }

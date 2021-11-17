@@ -34,7 +34,9 @@ class userController extends BaseController
     }
     public function getEdit()
     {   
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true );
+        $id = (int)$req['id'];
         return $this->userService->getEdit($id);
     }
     /*
@@ -45,13 +47,15 @@ class userController extends BaseController
     public function postEdit()
     {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
-        $id = (int)$_REQUEST['id'];
+        $req= json_decode( $inputJSON,true );
+        $id = (int)$req['id'];
         return $this->userService->postEdit($id,$req);
     }
     public function delete()
     {
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true );
+        $id = (int)$req['id'];
         return $this->userService->delete($id);
     }
     public function login(){

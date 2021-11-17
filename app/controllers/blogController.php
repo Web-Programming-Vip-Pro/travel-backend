@@ -22,17 +22,21 @@ class blogController extends BaseController {
         return $this->blogService->add($req);
     }  
     public function getEdit(){
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        $id = $req['id'];
         return $this->blogService->getEdit($id);
     }
     public function postEdit(){
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 
-        $id = (int)$_REQUEST['id'];
+        $id = $req['id'];
         return $this->blogService->postEdit($id,$req);
     }
     public function delete(){
-        $id = (int)$_REQUEST['id'];
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        $id = $req['id'];
         return $this->blogService->delete($id); 
     }
 }

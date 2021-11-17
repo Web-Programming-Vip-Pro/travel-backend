@@ -23,4 +23,3 @@ Linux run terminal to rewrite url <br/>
 ```bash
 sudo a2enmod rewrite && sudo service apache2 restart
 ```
-
