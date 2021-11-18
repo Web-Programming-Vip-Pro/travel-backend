@@ -27,9 +27,11 @@ class CityService
         $this->middleware   = new Middleware();
         $this->user         = $this->middleware->handleAdmin();
     }
-    public function list()
+    public function list($req)
     {
-        $result = $this->city->get();
+        $page = isset($req['page']) ? (int)($req['page']) : 0;
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $result = $this->city->get(-1,$page,$limit);
         return $this->container->status(200, $result);
     }
     public function add($req)

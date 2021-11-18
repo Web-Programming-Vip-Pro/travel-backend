@@ -14,7 +14,9 @@ class blogController extends BaseController {
     }
     public function index()
     {
-        return $this->blogService->list();
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->blogService->list($req);
     }
     public function postAdd(){
         $inputJSON = file_get_contents('php://input');

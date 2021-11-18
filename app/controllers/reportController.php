@@ -15,7 +15,9 @@ class reportController extends BaseController{
     // get all report 
     public function index()
     {
-       return $this->reportService->list();
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+       return $this->reportService->list($req);
     }
     // add report with agency_id
     public function postAdd(){

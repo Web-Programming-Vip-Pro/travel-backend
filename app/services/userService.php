@@ -67,7 +67,7 @@ class UserService
             return $this->controller->status(422,$msg);
         }
         $resultByEmail = $this->user->getByEmail($req['email']);
-        if($resultByEmail != false){
+        if($resultByEmail != null){
             $msg='User existed';
             return $this->controller->status(500,$msg);
         }
@@ -113,7 +113,7 @@ class UserService
         if($msg != false){
             return $this->controller->status(500,$msg);
         }
-        $msg = $this->handleValidator($req,'add');
+        $msg = $this->handleValidator($req,'edit');
         if($msg != false){
             return $this->controller->status(422,$msg);
         }
@@ -153,6 +153,47 @@ class UserService
         $msg = 'Update user error';
         return $this->controller->status(500,$msg);
     }
+    public function updateInfo($id,$req){
+        if($this->userMiddle == false){
+            return $this->controller->status(401,"Unauthorized");
+        }
+        $msg = $this->handleValidator($req,'edit');
+        if($msg != false){
+            return $this->controller->status(422,$msg);
+        }
+        $data =[
+            "name"          => $req["name"],
+            "bio"           => $req['bio'],
+        ];
+        if(isset($req['avatar'])){
+            $data['avatar']  = $req['avatar'];
+        }
+        if(isset($req['image_cover'])){
+            $data['image_cover']  = $req['image_cover'];
+        }
+        $data['info'] = $this->helper->jsonEncodeInfo($req);
+        $data['social'] = $this->helper->jsonEncodeSocial($req);
+        $result = $this->user->get($id);
+        if(isset($req['password']) && $req['email'] != $result['email']){
+            if(!password_verify($req['password'], $result['password'])) {
+                $msg = 'Password incorrect';
+                return $this->controller->status(500,$msg);
+            } 
+            $resultByEmail = $this->user->getByEmail($req['email']);
+            if($resultByEmail != null){
+                $msg='User existed';
+                return $this->controller->status(500,$msg);
+            }
+            $data['email'] = $req['email'];
+        }
+        $result = $this->user->update($id,$data);
+        if($result == true){
+            $msg = 'Update user success';
+            return $this->controller->status(200,$msg);
+        }
+        $msg = 'Update user error';
+        return $this->controller->status(500,$msg);
+    }
     public function delete ($id){
         if($this->adminMiddle  == false){
             return $this->controller->status(401,"Unauthorized");
@@ -173,7 +214,7 @@ class UserService
         $email = $req['email'];
         $password = $req['password'];
         $resultByEmail = $this->user->getByEmail($email);
-        if($resultByEmail == false){
+        if($resultByEmail == null){
             $msg =  'User not existed';
             return $this->controller->status(500,$msg);
         }
@@ -200,7 +241,7 @@ class UserService
             "password"          => $hashed_password,
         ];
         $resultByEmail = $this->user->getByEmail($data['email']);
-        if($resultByEmail != false){
+        if($resultByEmail != null){
             $msg='User existed';
             return $this->controller->status(500,$msg);
         }
@@ -220,7 +261,7 @@ class UserService
             return $this->controller->status(422,$msg);
         }
         $result = $this->user->getByEmail($req['email']);
-        if($result == false){
+        if($result == null){
             return $this->controller->status(500,"User not exactly");
         }
         $passReset = $this->helper->generateRandomString();

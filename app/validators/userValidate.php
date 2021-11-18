@@ -32,11 +32,8 @@ class UserValidate{
         if (!isset($req['name']) || trim($req['name']) == '') {
             array_push($msg, 'Please fill out name');
         }
-        if(!isset($req['password']) || trim($req['password']) == ''){
-            array_push($msg,'Please fill out password');
-        }
-        if(isset($req['password']) && $req['password'] != $req['repassword']){
-            array_push($msg,'Password not matched');
+        if(!isset($req['email']) || trim($req['email']) == ''){
+            array_push($msg,'Please fill out email');
         }
         return $msg;
     }       

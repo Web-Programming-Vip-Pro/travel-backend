@@ -9,9 +9,11 @@ class ReportModel {
     public function __construct(){
         $this->conn = new DB();
     }
-    public function get ($id = -1){
+    public function get ($id = -1,$page=0,$limit=20){
         if($id == -1){
-            return $this->conn->getArray($this->table);
+            $firstRow = $page * $limit;
+            $sql = 'SELECT * FROM '.$this->table.' LIMIT '.$firstRow.','.$limit;
+            return $this->conn->query($sql);
         }
         return $this->conn->getRowArray($this->table,$id);
     }

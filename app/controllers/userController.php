@@ -51,6 +51,14 @@ class userController extends BaseController
         $id = (int)$req['id'];
         return $this->userService->postEdit($id,$req);
     }
+    public function updateInfo()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true );
+        $id = (int)$req['id'];
+        var_dump($req);
+        return $this->userService->updateInfo($id,$req);
+    }
     public function delete()
     {
         $inputJSON = file_get_contents('php://input');

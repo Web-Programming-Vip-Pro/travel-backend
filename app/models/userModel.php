@@ -9,9 +9,11 @@ class UserModel {
     public function __construct(){
         $this->conn = new DB();
     }
-    public function get ($id = -1){
+    public function get ($id = -1,$page=0,$limit=20){
         if($id == -1){
-            return $this->conn->getArray($this->table);
+            $firstRow = $page * $limit;
+            $sql = 'SELECT * FROM '.$this->table.' LIMIT '.$firstRow.','.$limit;
+            return $this->conn->query($sql);
         }
         return $this->conn->getRowArray($this->table,$id);
     }
@@ -30,16 +32,3 @@ class UserModel {
         return $this->conn->delete($this->table,$id);
     }
 }
-
-// function getAll (){
-//     $conn = new DB();
-//     $data = [
-//         'name' => "Vnutu",
-//         'password' => '01',
-//         'role' =>'0'
-//     ];
-//     $sql = "SELECT * FROM tb_users";
-//     return $conn->delete("tb_users",1);
-// }
-// $result = getAll();
-// var_dump($result);

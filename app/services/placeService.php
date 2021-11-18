@@ -31,7 +31,7 @@ class PlaceService
         $this->user         = $this->middleware->handleAgency();
         $this->admin         = $this->middleware->handleAdmin();
     }
-    public function listAll(){
+    public function listAll($req){
         if($this->admin == false){
             return $this->container->status(401,"Unauthorized");
         }

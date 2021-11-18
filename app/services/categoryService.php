@@ -26,8 +26,10 @@ class CategoryService
         $this->middleware   = new Middleware();
         $this->user = $this->middleware->handleAdmin();
     }
-    public function list(){
-        $result = $this->category->get();
+    public function list($req){
+        $page = isset($req['page']) ? (int)($req['page']) : 0;
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $result = $this->category->get(-1,$page,$limit);
         return $this->container->status(200,$result);
     }
     public function add($req)

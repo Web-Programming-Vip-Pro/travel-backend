@@ -17,7 +17,9 @@ class cityController extends BaseController
     }
     public function index()
     {
-        return $this->cityService->list();
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->cityService->list($req);
     }
     public function postAdd()
     {

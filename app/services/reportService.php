@@ -21,12 +21,15 @@ class ReportService
         $this->report    = new ReportModel();
         $this->middleware   = new Middleware();
         $this->user         = $this->middleware->handleUser();
+        $this->admin         = $this->middleware->handleAdmin();
     }
-    public function list(){
-        if($this->user == false){
+    public function list($req){
+        if($this->admin == false){
             return $this->controller->status(401,"Unauthorized");
         }
-        $result= $this->report->get();
+        $page = isset($req['page']) ? (int)($req['page']) : 0;
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $result = $this->report->get(-1,$page,$limit);
         return $this->controller->status(200,$result);
     }
     public function add($agency_id,$req){

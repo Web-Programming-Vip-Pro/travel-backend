@@ -14,7 +14,9 @@ class categoryController extends BaseController {
     }
     public function index()
     {
-       return $this->cateService->list();
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+       return $this->cateService->list($req);
     }
     public function postAdd(){
         $inputJSON = file_get_contents('php://input');

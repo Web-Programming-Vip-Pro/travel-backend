@@ -16,7 +16,7 @@ class placeController extends BaseController{
     {
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 
-       return $this->placeService->listALL();
+        return $this->placeService->listALL($req);
     }
     public function listType(){
         $inputJSON = file_get_contents('php://input');

@@ -5,7 +5,9 @@ $router->get("/users",'userController@list');
 $router->post("/user/add",'userController@postAdd');
 $router->get("/user/edit",'userController@getEdit'); //req[id]
 $router->post("/user/edit",'userController@postEdit'); // req[id]
+$router->post("/user/updateInfo",'userController@updateInfo'); // req[id]
 $router->get("/user/delete",'userController@delete'); // req[id]
+$router->post('user/changePassword', 'userController@changePassword');
 // wishlist
 $router->get("/user/wishlist",'wishlistController@index'); // @param id_user
 $router->post("/user/wishlist/add",'wishlistController@postAdd'); // @param id_place
@@ -14,7 +16,6 @@ $router->get("/user/wishlist/delete",'wishlistController@getEdit');// @param id_
 $router->post('/login','userController@login');
 $router->post('/register', 'userController@register');
 $router->post('/forget', 'userController@forget');
-$router->post('/changePassword', 'userController@changePassword');
 // route group "/country"
 $router->get("/countries",'countryController@index');
 $router->post("/country/add",'countryController@postAdd');
