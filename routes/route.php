@@ -21,7 +21,7 @@ $router->get("/countries", 'countryController@index');
 $router->post("/country/add", 'countryController@postAdd');
 $router->get("/country/edit", 'countryController@getEdit'); //req[id]
 $router->post("/country/edit", 'countryController@postEdit'); //req[id]
-$router->get("/country/delete", 'countryController@delete'); //req[id]
+$router->post("/country/delete", 'countryController@delete'); //req[id]
 // route group category
 $router->get("/categories", 'categoryController@index');
 $router->post("/category/add", 'categoryController@postAdd');
