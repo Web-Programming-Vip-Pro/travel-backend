@@ -4,7 +4,6 @@ namespace App\Services;
 
 require_once('core/http/Container.php');
 require_once('app/models/pageModel.php');
-require_once('app/validators/configValidate.php');
 require_once('app/middleware/middleware.php');
 
 use App\Models\PageModel;
