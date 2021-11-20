@@ -42,6 +42,13 @@ class CityService
         }
         return $this->container->status(200, $result);
     }
+    public function page($req){
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $result = $this->city->getAll($limit);
+        $totalRow = count($result);
+        $pages = (int)($totalRow / $limit) + 1;
+        return $this->container->status(200,$pages);
+    }
     public function add($req)
     {
         $msgs = $this->handleValidator($req, 'add');

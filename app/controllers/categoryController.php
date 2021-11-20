@@ -18,6 +18,12 @@ class categoryController extends BaseController {
         $req= json_decode( $inputJSON,true ); 
        return $this->cateService->list($req);
     }
+    public function page()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->cateService->page($req);
+    }
     public function postAdd(){
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 

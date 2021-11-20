@@ -14,6 +14,10 @@ class CityModel
     {
         $this->conn = new DB();
     }
+    public function getAll()
+    {
+        return $this->conn->getArray($this->table);
+    }
     public function get($id = -1, $page = 0, $limit = 20, $order = 'DESC')
     {
         if ($id == -1) {
@@ -23,6 +27,7 @@ class CityModel
         }
         return $this->conn->getRowArray($this->table, $id);
     }
+
     public function create($data)
     {
         return $this->conn->insert($this->table, $data);

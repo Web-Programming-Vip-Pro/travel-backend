@@ -21,6 +21,12 @@ class countryController extends BaseController
         $req= json_decode( $inputJSON,true ); 
         return $this->countryService->list($req);
     }
+    public function page()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->countryService->page($req);
+    }
     public function postAdd()
     {
         $inputJSON = file_get_contents('php://input');
