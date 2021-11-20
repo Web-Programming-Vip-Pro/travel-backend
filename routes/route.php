@@ -19,12 +19,12 @@ $router->post('/login', 'userController@login');
 $router->post('/register', 'userController@register');
 $router->post('/forget', 'userController@forget');
 // route group "/country"
-$router->get("/countries", 'countryController@index');
+$router->get("/countries.*", 'countryController@index');
 $router->post("/country/add", 'countryController@postAdd');
 $router->get("/country/edit", 'countryController@getEdit'); //req[id]
 $router->post("/country/edit", 'countryController@postEdit'); //req[id]
 $router->post("/country/delete", 'countryController@delete'); //req[id]
-$router->get("/country/pages", 'countryController@page');
+$router->get("/country/pages.*", 'countryController@page');
 // route group category
 $router->get("/categories", 'categoryController@index');
 $router->post("/category/add", 'categoryController@postAdd');

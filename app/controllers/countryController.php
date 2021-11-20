@@ -17,14 +17,12 @@ class countryController extends BaseController
     }
     public function index()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = $_REQUEST;
         return $this->countryService->list($req);
     }
     public function page()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = $_REQUEST;
         return $this->countryService->page($req);
     }
     public function postAdd()

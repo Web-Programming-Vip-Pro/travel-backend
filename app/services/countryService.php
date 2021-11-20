@@ -34,12 +34,13 @@ class CountryService
         $result = $this->country->get(-1, $page, $limit);
         return $this->container->status(200, $result);
     }
-    public function page($req){
+    public function page($req)
+    {
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
         $result = $this->country->getAll($limit);
         $totalRow = count($result);
         $pages = (int)($totalRow / $limit) + 1;
-        return $this->container->status(200,$pages);
+        return $this->container->status(200, $pages);
     }
     public function add($req)
     {
