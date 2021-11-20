@@ -29,7 +29,7 @@ $router->get("/category/edit", 'categoryController@getEdit'); //req[id]
 $router->post("/category/edit", 'categoryController@postEdit'); //req[id]
 $router->get("/category/delete", 'categoryController@delete'); //req[id]
 // route group city
-$router->get("/cities", 'cityController@index');
+$router->get("/cities.*?", 'cityController@index');
 $router->post("/city/add", 'cityController@postAdd');
 $router->get("/city/edit", 'cityController@getEdit'); //req[id]
 $router->post("/city/edit", 'cityController@postEdit'); //req[id]

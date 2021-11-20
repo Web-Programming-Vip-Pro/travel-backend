@@ -4,10 +4,12 @@ namespace App\Services;
 
 require_once('core/http/Container.php');
 require_once('app/models/cityModel.php');
+require_once('app/models/countryModel.php');
 require_once('app/validators/cityValidate.php');
 require_once('app/middleware/middleware.php');
 
 use App\Models\CityModel;
+use App\Models\CountryModel;
 use App\Validator\CityValidate;
 use App\Middleware\Middleware;
 use Core\Http\BaseController;
@@ -24,6 +26,7 @@ class CityService
         $this->container    = new BaseController();
         $this->validate     = new CityValidate();
         $this->city         = new CityModel();
+        $this->country     = new CountryModel();
         $this->middleware   = new Middleware();
         $this->user         = $this->middleware->handleAdmin();
     }
@@ -31,7 +34,11 @@ class CityService
     {
         $page = isset($req['page']) ? (int)($req['page']) : 0;
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->city->get(-1,$page,$limit);
+        $result = $this->city->get(-1, $page, $limit);
+        foreach ($result as $key => $value) {
+            $result[$key]->country = $this->country->get((int)$value->country_id);
+            unset($result[$key]->country_id);
+        }
         return $this->container->status(200, $result);
     }
     public function add($req)
@@ -91,7 +98,7 @@ class CityService
             'country_id'    => $req['country_id'],
             'description'   => $req['description'],
         ];
-        if(isset($req['image_cover'])){
+        if (isset($req['image_cover'])) {
             $data['image_cover'] = $req['image_cover'];
         }
         $result = $this->city->update($id, $data);

@@ -17,8 +17,7 @@ class cityController extends BaseController
     }
     public function index()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = $_REQUEST;
         return $this->cityService->list($req);
     }
     public function postAdd()
@@ -30,7 +29,7 @@ class cityController extends BaseController
     public function getEdit()
     {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = json_decode($inputJSON, true);
         $id = (int)$req['id'];
         return $this->cityService->getEdit($id);
     }
