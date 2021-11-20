@@ -23,7 +23,8 @@ class CityModel
         if ($id == -1) {
             $firstRow = $page * $limit;
             $sql = "SELECT * FROM $this->table ORDER BY id $order LIMIT $firstRow, $limit";
-            return $this->conn->query($sql);
+            $data = $this->conn->query($sql);
+            return $data;
         }
         return $this->conn->getRowArray($this->table, $id);
     }

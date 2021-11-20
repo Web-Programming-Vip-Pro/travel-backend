@@ -37,8 +37,8 @@ $router->get("/cities.*?", 'cityController@index');
 $router->post("/city/add", 'cityController@postAdd');
 $router->get("/city/edit", 'cityController@getEdit'); //req[id]
 $router->post("/city/edit", 'cityController@postEdit'); //req[id]
-$router->get("/city/delete", 'cityController@delete'); //req[id]
-$router->get("/city/pages", 'cityController@page');
+$router->post("/city/delete", 'cityController@delete'); //req[id]
+$router->get("/city/pages.*?", 'cityController@page');
 // route group blog
 $router->get("/blogs", 'blogController@index');
 $router->post("/blog/add", 'blogController@postAdd');

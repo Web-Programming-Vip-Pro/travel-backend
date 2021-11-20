@@ -38,16 +38,16 @@ class CityService
         $result = $this->city->get(-1, $page, $limit, $order);
         foreach ($result as $key => $value) {
             $result[$key]->country = $this->country->get((int)$value->country_id);
-            unset($result[$key]->country_id);
         }
         return $this->container->status(200, $result);
     }
-    public function page($req){
+    public function page($req)
+    {
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
         $result = $this->city->getAll($limit);
         $totalRow = count($result);
         $pages = (int)($totalRow / $limit) + 1;
-        return $this->container->status(200,$pages);
+        return $this->container->status(200, $pages);
     }
     public function add($req)
     {

@@ -22,8 +22,7 @@ class cityController extends BaseController
     }
     public function page()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = $_REQUEST;
         return $this->cityService->page($req);
     }
     public function postAdd()
