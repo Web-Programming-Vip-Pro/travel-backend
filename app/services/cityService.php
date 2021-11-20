@@ -34,7 +34,8 @@ class CityService
     {
         $page = isset($req['page']) ? (int)($req['page']) : 0;
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->city->get(-1, $page, $limit);
+        $order = isset($req['order']) ? $req['order'] : 'DESC';
+        $result = $this->city->get(-1, $page, $limit, $order);
         foreach ($result as $key => $value) {
             $result[$key]->country = $this->country->get((int)$value->country_id);
             unset($result[$key]->country_id);
@@ -43,9 +44,6 @@ class CityService
     }
     public function add($req)
     {
-        if ($this->user == false) {
-            return $this->container->status(401, "Unauthorized");
-        }
         $msgs = $this->handleValidator($req, 'add');
         if ($msgs != false) {
             return $this->container->status(422, $msgs);
@@ -55,7 +53,7 @@ class CityService
             'country_id'    => $req['country_id'],
             'description'   => $req['description'],
             'total_places'  => 0,
-            'image_cover'   => $req['images'],
+            'image_cover'   => $req['image_cover'],
         ];
         // image
         $result = $this->city->create($data);
