@@ -55,17 +55,21 @@ class UserService
         // when accessed,get data users
         return $this->controller->status(200, $jwt);
     }
-    public function list()
+    public function list($req)
     {
-        $result = $this->user->get();
+        $page = isset($req['page']) ? (int)($req['page']) : 0;
+        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
+        $role = isset($req['role']) ? $req['role'] : 0;
+        $order = isset($req['order']) ? $req['order'] : 'DESC';
+        $result = $this->user->get(-1, $page, $limit, $role, $order);
         return $this->controller->status(200, $result);
     }
-    public function page($req){
+    public function page($req)
+    {
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->user->getAll($limit);
-        $totalRow = count($result);
-        $pages = (int)($totalRow / $limit) + 1;
-        return $this->container->status(200,$pages);
+        $role = isset($req['role']) ? $req['role'] : 0;
+        $pages = $this->user->getPages($limit, $role);
+        return $this->controller->status(200, $pages);
     }
     public function add($req)
     {
@@ -90,19 +94,48 @@ class UserService
             "avatar"            => $req['avatar'],
             "status_agency"     => 0,
             "image_cover"       => $req['image_cover'],
+            "blocked"       => $req['blocked'] ? $req['blocked'] : 0,
         ];
-        $data['info'] = $this->helper->jsonEncodeInfo($req);
         $data['social'] = $this->helper->jsonEncodeSocial($req);
         $result = $this->user->create($data);
         if ($result == true) {
             $payload = $this->user->getByEmail($data['email']);
-            $JWT = $this->authenticationService->generateJWTToken($payload);
-            $msg = $JWT;
-            return $this->controller->status(201, $msg);
+            return $this->controller->status(201, $payload[0]);
         }
         $msg = 'Add user to database fail';
         return $this->controller->status(500, $msg);
     }
+
+    public function update($req)
+    {
+        if ($this->adminMiddle == false) {
+            return $this->controller->status(401, "Unauthorized");
+        }
+        $msg = $this->handleValidator($req, 'add');
+        if ($msg != false) {
+            return $this->controller->status(422, $msg);
+        }
+        $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
+        $id = (int)$req['id'];
+        $data = [
+            "name"              => $req["name"],
+            "email"             => $req["email"],
+            "password"          => $hashed_password,
+            "bio"               => $req["bio"],
+            "avatar"            => $req['avatar'],
+            "status_agency"     => 0,
+            "image_cover"       => $req['image_cover'],
+            "blocked"       => $req['blocked'] ? $req['blocked'] : 0,
+        ];
+        $data['social'] = $this->helper->jsonEncodeSocial($req);
+        $result = $this->user->update($id, $data);
+        if ($result == true) {
+            return $this->controller->status(201, "Update success!");
+        }
+        $msg = 'Update user to database fail';
+        return $this->controller->status(500, $msg);
+    }
+
     public function getEdit($id)
     {
         if ($this->userMiddle == false) {

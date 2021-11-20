@@ -24,14 +24,20 @@ class userController extends BaseController
     }
     public function page()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = $_REQUEST;
         return $this->userService->page($req);
+    }
+
+    public function update()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $input = json_decode($inputJSON, TRUE);
+        return $this->userService->update($input);
     }
     public function list()
     {
-        // when accessed,get data users
-        return $this->userService->list();
+        $req = $_REQUEST;
+        return $this->userService->list($req);
     }
     public function postAdd()
     {

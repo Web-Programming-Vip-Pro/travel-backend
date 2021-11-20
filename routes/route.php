@@ -1,15 +1,16 @@
 <?php
 // route group "/user" 
 $router->get("/user", 'userController@index'); // get jwt
-$router->get("/users", 'userController@list');
+$router->get("/users.*?", 'userController@list');
 $router->post("/user/add", 'userController@postAdd');
 $router->get("/user/edit", 'userController@getEdit'); //req[id]
 $router->post("/user/edit", 'userController@postEdit'); // req[id]
+$router->post("/user/update", 'userController@update'); // admin update
 $router->post("/user/updateInfo", 'userController@updateInfo'); // req[id]
-$router->get("/user/delete", 'userController@delete'); // req[id]
+$router->post("/user/delete", 'userController@delete'); // req[id]
 $router->post('user/changePassword', 'userController@changePassword');
 // get pages user
-$router->get("/user/pages", 'userController@page');
+$router->get("/user/pages.*?", 'userController@page');
 // wishlist
 $router->get("/user/wishlist", 'wishlistController@index'); // @param id_user
 $router->post("/user/wishlist/add", 'wishlistController@postAdd'); // @param id_place
