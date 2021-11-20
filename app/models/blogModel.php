@@ -17,6 +17,9 @@ class BlogModel {
         }
         return $this->conn->getRowArray($this->table,$id);
     }
+    public function getAll(){
+        return $this->conn->getArray($this->table);
+    }
     public function create($data){
        return $this->conn->insert($this->table,$data);
     }

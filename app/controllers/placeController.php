@@ -18,6 +18,12 @@ class placeController extends BaseController{
         $req= json_decode( $inputJSON,true ); 
         return $this->placeService->listALL($req);
     }
+    public function page()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req= json_decode( $inputJSON,true ); 
+        return $this->placeService->page($req);
+    }
     public function listType(){
         $inputJSON = file_get_contents('php://input');
         $req= json_decode( $inputJSON,true ); 

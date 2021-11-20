@@ -9,6 +9,9 @@ class PlaceModel {
     public function __construct(){
         $this->conn = new DB();
     }
+    public function getAll(){
+        return $this->conn->getArray($this->table);
+    }
     public function get ($id = -1,$page=0,$limit=20){
         if($id == -1){
             $firstRow = $page * $limit;
