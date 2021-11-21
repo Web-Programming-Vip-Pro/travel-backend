@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 require_once('app/models/reviewModel.php');
@@ -15,8 +16,8 @@ use Core\Http\BaseController;
 use App\Models\NotifyModel;
 use App\Validator\ReviewValidate;
 
-class ReviewService 
-{  
+class ReviewService
+{
     private $review;
     private $middleware;
     private $controller;
@@ -24,7 +25,7 @@ class ReviewService
     private $place;
     private $notify;
     public function __construct()
-    {   
+    {
         $this->controller   = new BaseController();
         $this->review       = new ReviewModel();
         $this->place        = new PlaceModel();
@@ -34,84 +35,86 @@ class ReviewService
         $this->user         = $this->middleware->handleUser();
         $this->agency       = $this->middleware->handleAgency();
     }
-    /**
-     * param @place_id
-     * return @response
-     */
-    public function list($id){
-        $result = $this->review->getByPlaceId($id);
-        return $this->controller->status(200,$result);
+
+    public function list($req)
+    {
+        $id = (int)$req['id'];
+        $page = isset($req['page']) ? (int)$req['page'] : 0;
+        $limit = isset($req['limit']) ? (int)$req['limit'] : 20;
+        $order = isset($req['order']) ? $req['order'] : 'recent';
+        $result = $this->review->getByPlaceId($id, $page, $limit, $order);
+        return $this->controller->status(200, $result);
     }
-    public function getAboutYou(){
-        if($this->user == false){
-            return $this->controller->status(401,"Unauthorized");
+    public function getAboutYou()
+    {
+        if ($this->user == false) {
+            return $this->controller->status(401, "Unauthorized");
         }
         $agency_id = $this->agency->id;
         $result = $this->review->getAboutYou($agency_id);
-        return $this->controller->status(200,$result);
+        return $this->controller->status(200, $result);
     }
-    
-    public function getByYou(){
-        if($this->user == false){
-            return $this->controller->status(401,"Unauthorized");
+
+    public function getByYou()
+    {
+        if ($this->user == false) {
+            return $this->controller->status(401, "Unauthorized");
         }
         $user_id = $this->user->id;
         $result = $this->review->getByYou($user_id);
-        return $this->controller->status(200,$result);
-    }  
+        return $this->controller->status(200, $result);
+    }
 
     /**
      * param @place_id,@req
      * return response
      */
-    public function add($place_id,$req){
-        if($this->user == false){
-            return $this->controller->status(401,"Unauthorized");
-        }
+    public function add($place_id, $req)
+    {
         $msgs = $this->handleValidator($req);
-        if($msgs != false){
-            return $this->container->status(422,$msgs);
+        if ($msgs != false) {
+            return $this->container->status(422, $msgs);
         }
         $place = $this->place->get($place_id);
         $data = [
-            'user_id'       => $this->user->id,
+            'user_id'       => $req['user_id'],
             'place_id'      => $place_id,
             'rate'          => $req['rate'],
             'comment'       => $req['comment'],
-            'agency_id'     => $place['author_id']
         ];
         $result = $this->review->create($data);
-        if($result == false){
-            $msg= 'Add review to database fail';
-            return $this->controller->status(500,$msg);
+        if ($result == false) {
+            $msg = 'Add review to database fail';
+            return $this->controller->status(500, $msg);
         }
         // update stars place
         $dataPlace = [
-            'reviews'   => $place['reviews'] +1
+            'reviews'   => $place['reviews'] + 1
         ];
-        if($place['stars'] == 0.0){
+        if ($place['stars'] == 0.0) {
             $dataPlace['stars'] = $req['rate'];
-        }else{
-            $dataPlace['stars'] =  (float)($place['stars']+$req['rate'])/2;
+        } else {
+            $dataPlace['stars'] =  (float)($place['stars'] + $req['rate']) / 2;
         }
-        $this->place->update($place_id,$dataPlace);
+        $this->place->update($place_id, $dataPlace);
         // add notify for agency
-        $title = $this->user->name .'commented place ' .$this->place['title'];
-        $dataNotify = [
-            'title'     => $title,
-            'content'   => $data['comment'],
-            'seen'      => false,
-            'user_id'   => $place['author_id']
-        ];
-        $this->notify->create($dataNotify);
-        $msg= 'Add review to database success';
-        return $this->controller->status(200,$msg);
+        // $title = $this->user->name . 'commented place ' . $this->place['title'];
+        // $dataNotify = [
+        //     'title'     => $title,
+        //     'content'   => $data['comment'],
+        //     'seen'      => false,
+        //     'user_id'   => $place['author_id']
+        // ];
+        // $this->notify->create($dataNotify);
+        $msg = 'Add review to database success';
+        return $this->controller->status(200, $msg);
     }
-    public function handleValidator($req){
+    public function handleValidator($req)
+    {
         $msgs = $this->validate->add($req);
-        if(count($msgs) > 0){
+        if (count($msgs) > 0) {
             return $msgs;
-        } 
+        }
         return false;
     }
 }

@@ -18,10 +18,8 @@ class reviewController extends BaseController
     // get review with place_id
     public function index()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req = json_decode($inputJSON, true);
-        $place_id = (int)$req['place_id'];
-        return $this->reviewService->list($place_id);
+        $req = $_REQUEST;
+        return $this->reviewService->list($req);
     }
     public function getByYou()
     {
