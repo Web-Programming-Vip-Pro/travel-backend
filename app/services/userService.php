@@ -95,6 +95,7 @@ class UserService
             "status_agency"     => 0,
             "image_cover"       => $req['image_cover'],
             "blocked"       => $req['blocked'] ? $req['blocked'] : 0,
+            "role"             => $req['role'] ? $req['role'] : 0,
         ];
         $data['social'] = $this->helper->jsonEncodeSocial($req);
         $result = $this->user->create($data);
@@ -126,6 +127,7 @@ class UserService
             "status_agency"     => 0,
             "image_cover"       => $req['image_cover'],
             "blocked"       => $req['blocked'] ? $req['blocked'] : 0,
+            "role"             => $req['role'] ? $req['role'] : 0,
         ];
         $data['social'] = $this->helper->jsonEncodeSocial($req);
         $result = $this->user->update($id, $data);
