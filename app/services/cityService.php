@@ -71,19 +71,7 @@ class CityService
         $msg = 'Add city to database success';
         return $this->container->status(200, $msg);
     }
-    // function get edit  city 
-    public function getEdit($id)
-    {
-        if ($this->user == false) {
-            return $this->container->status(401, "Unauthorized");
-        }
-        $msgHandleId = $this->handleId($id);
-        if ($msgHandleId != false) {
-            return $this->container->status(500, $msgHandleId);
-        }
-        $msg = $this->city->get($id);
-        return $this->container->status(200, $msg);
-    }
+
     // function post edit city
     public function postEdit($id, $req)
     {

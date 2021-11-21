@@ -31,13 +31,7 @@ class cityController extends BaseController
         $req = json_decode($inputJSON, true);
         return $this->cityService->add($req);
     }
-    public function getEdit()
-    {
-        $inputJSON = file_get_contents('php://input');
-        $req = json_decode($inputJSON, true);
-        $id = (int)$req['id'];
-        return $this->cityService->getEdit($id);
-    }
+
     public function postEdit()
     {
         $inputJSON = file_get_contents('php://input');
