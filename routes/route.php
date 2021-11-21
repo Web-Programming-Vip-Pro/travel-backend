@@ -61,9 +61,9 @@ $router->get("/transaction/edit", 'transactionController@getEdit'); // @param id
 $router->post("/transaction/edit", 'transactionController@postEdit'); // @param  id_transaction
 // route group wishlist
 // route group review
-$router->get("/user/reviews", 'reviewController@getByYou');
+$router->get("/review/user.*?", 'reviewController@user');
 $router->get("/review/place.*?", 'reviewController@index'); // @param id_place
-$router->post("/place/review/add", 'reviewController@postAdd'); // @param id_place
+$router->post("/review/add", 'reviewController@postAdd'); // @param id_place
 // route group report
 $router->get("/reports", 'reportController@index');
 $router->post("/report/add", 'reportController@postAdd'); // @param id_agency

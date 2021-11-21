@@ -4,6 +4,7 @@ namespace App\Services;
 
 require_once('app/models/reviewModel.php');
 require_once('app/models/placeModel.php');
+require_once('app/models/userModel.php');
 require_once('app/middleware/middleware.php');
 include_once('app/models/notifyModel.php');
 require_once('core/http/Container.php');
@@ -12,6 +13,7 @@ require_once('app/validators/reviewValidate.php');
 use App\Models\ReviewModel;
 use App\Middleware\Middleware;
 use App\Models\PlaceModel;
+use App\Models\UserModel;
 use Core\Http\BaseController;
 use App\Models\NotifyModel;
 use App\Validator\ReviewValidate;
@@ -23,7 +25,7 @@ class ReviewService
     private $controller;
     private $validate;
     private $place;
-    private $notify;
+    private $user;
     public function __construct()
     {
         $this->controller   = new BaseController();
@@ -32,8 +34,7 @@ class ReviewService
         $this->notify       = new NotifyModel();
         $this->validate     = new ReviewValidate();
         $this->middleware   = new Middleware();
-        $this->user         = $this->middleware->handleUser();
-        $this->agency       = $this->middleware->handleAgency();
+        $this->user        = new UserModel();
     }
 
     public function list($req)
@@ -43,38 +44,35 @@ class ReviewService
         $limit = isset($req['limit']) ? (int)$req['limit'] : 20;
         $order = isset($req['order']) ? $req['order'] : 'recent';
         $result = $this->review->getByPlaceId($id, $page, $limit, $order);
-        return $this->controller->status(200, $result);
-    }
-    public function getAboutYou()
-    {
-        if ($this->user == false) {
-            return $this->controller->status(401, "Unauthorized");
+        // if result, loop through and get user info
+        if ($result) {
+            foreach ($result as $key => $value) {
+                $user = $this->getUserInfo((int)$value->user_id);
+                $result[$key]->user = $user;
+            }
         }
-        $agency_id = $this->agency->id;
-        $result = $this->review->getAboutYou($agency_id);
         return $this->controller->status(200, $result);
     }
 
-    public function getByYou()
+    public function getUserInfo($userId)
     {
-        if ($this->user == false) {
-            return $this->controller->status(401, "Unauthorized");
-        }
-        $user_id = $this->user->id;
-        $result = $this->review->getByYou($user_id);
-        return $this->controller->status(200, $result);
+        $user = $this->user->get($userId);
+        $data = [
+            'id' => $user['id'],
+            'name' => $user['name'],
+            'avatar' => $user['avatar'],
+            'blocked' => $user['blocked'],
+        ];
+        return $data;
     }
 
-    /**
-     * param @place_id,@req
-     * return response
-     */
-    public function add($place_id, $req)
+    public function add($req)
     {
         $msgs = $this->handleValidator($req);
         if ($msgs != false) {
             return $this->container->status(422, $msgs);
         }
+        $place_id = (int)$req['place_id'];
         $place = $this->place->get($place_id);
         $data = [
             'user_id'       => $req['user_id'],

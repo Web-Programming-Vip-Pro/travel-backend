@@ -34,20 +34,7 @@ class ReviewModel
         $sql = "SELECT * FROM $this->table WHERE place_id = $id $ORDER LIMIT $page, $limit";
         return $this->conn->query($sql);
     }
-    public function getAboutYou($agency_id)
-    {
-        die("Hello");
-        $where = 'agency_id= "' . $agency_id . '"';
-        $sql = 'SELECT * FROM ' . $this->table . ' WHERE ' . $where;
-        return $this->conn->query($sql);
-    }
-    public function getByYou($user_id)
-    {
-        die("Hello");
-        $where = 'user_id= "' . $user_id . '"';
-        $sql = 'SELECT * FROM ' . $this->table . ' WHERE ' . $where;
-        return $this->conn->query($sql);
-    }
+
     public function create($data)
     {
         return $this->conn->insert($this->table, $data);

@@ -21,20 +21,12 @@ class reviewController extends BaseController
         $req = $_REQUEST;
         return $this->reviewService->list($req);
     }
-    public function getByYou()
-    {
-        return $this->reviewService->getByYou();
-    }
-    public function getAboutYou()
-    {
-        return $this->reviewService->getAboutYou();
-    }
+
     // add review with place_id
     public function postAdd()
     {
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
-        $place_id = (int)$req['place_id'];
-        return $this->reviewService->add($place_id, $req);
+        return $this->reviewService->add($req);
     }
 }
