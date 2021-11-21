@@ -40,7 +40,8 @@ class PlaceService
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
         $type = isset($req['type']) ? $req['type'] : -1;
         $order = isset($req['order']) ? $req['order'] : 'recent';
-        $result = $this->place->get(-1, $page, $limit, $type, $order);
+        $city_id = isset($req['city_id']) ? $req['city_id'] : -1;
+        $result = $this->place->get(-1, $page, $limit, $type, $city_id, $order);
         if ($result) {
             foreach ($result as $key => $value) {
                 $city = $this->city->get((int)$value->city_id);

@@ -10,6 +10,7 @@ class PlaceModel
 {
     public $conn;
     private $table = 'tb_place';
+    private $_WHERE = '';
     public function __construct()
     {
         $this->conn = new DB();
@@ -18,8 +19,9 @@ class PlaceModel
     {
         return $this->conn->getArray($this->table);
     }
-    public function get($id = -1, $page = 0, $limit = 20, $type = -1, $order = 'recent')
+    public function get($id = -1, $page = 0, $limit = 20, $type = -1, $city_id = -1, $order = 'recent')
     {
+        $this->_WHERE = '';
         $ORDER = "";
         switch ($order) {
             case 'max-price':
@@ -36,8 +38,13 @@ class PlaceModel
                 break;
         }
         if ($id == -1) {
-            $WHERE = $type == -1 ? '' : 'WHERE type = ' . $type;
-            $sql = "SELECT * FROM $this->table $WHERE ORDER BY $ORDER LIMIT $page, $limit";
+            if ($type != -1) {
+                $this->addWhere("type = $type");
+            }
+            if ($city_id != -1) {
+                $this->addWhere("city_id = $city_id");
+            }
+            $sql = "SELECT * FROM $this->table $this->_WHERE ORDER BY $ORDER LIMIT $page, $limit";
             $data = $this->conn->query($sql);
             return $data;
         }
@@ -63,5 +70,10 @@ class PlaceModel
     public function delete($id)
     {
         return $this->conn->delete($this->table, $id);
+    }
+    public function addWhere($condition)
+    {
+        // Check if WHERE is empty add WHERE, if not add AND 
+        $this->_WHERE = $this->_WHERE == '' ? 'WHERE ' . $condition : $this->_WHERE . ' AND ' . $condition;
     }
 }
