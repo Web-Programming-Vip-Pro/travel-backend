@@ -21,23 +21,12 @@ class placeController extends BaseController
         if (isset($req['id'])) return $this->placeService->getPlace((int)$req['id']);
         return $this->placeService->listAll($req);
     }
-    public function page()
+    public function pages()
     {
         $req = $_REQUEST;
-        return $this->placeService->page($req);
+        return $this->placeService->pages($req);
     }
-    public function listType()
-    {
-        $inputJSON = file_get_contents('php://input');
-        $req = json_decode($inputJSON, true);
-        return $this->placeService->listType($req);
-    }
-    public function listCity()
-    {
-        $inputJSON = file_get_contents('php://input');
-        $req = json_decode($inputJSON, true);
-        return $this->placeService->listCity($req);
-    }
+
     public function postAdd()
     {
         $inputJSON = file_get_contents('php://input');

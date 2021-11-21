@@ -30,6 +30,12 @@ class CountryModel
         }
         return $this->conn->getRowArray($this->table, $id);
     }
+
+    public function getCities($country_id)
+    {
+        $sql = "SELECT * FROM tb_city WHERE country_id = $country_id";
+        return $this->conn->query($sql);
+    }
     public function create($data)
     {
         return $this->conn->insert($this->table, $data);

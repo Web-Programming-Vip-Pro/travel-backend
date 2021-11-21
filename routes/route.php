@@ -22,6 +22,7 @@ $router->post('/forget', 'userController@forget');
 // route group "/country"
 $router->get("/countries.*", 'countryController@index');
 $router->post("/country/add", 'countryController@postAdd');
+$router->get("/country/cities.*", 'countryController@getCities');
 $router->get("/country/edit", 'countryController@getEdit'); //req[id]
 $router->post("/country/edit", 'countryController@postEdit'); //req[id]
 $router->post("/country/delete", 'countryController@delete'); //req[id]

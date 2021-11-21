@@ -25,6 +25,12 @@ class countryController extends BaseController
         $req = $_REQUEST;
         return $this->countryService->page($req);
     }
+    public function getCities()
+    {
+        $req = $_REQUEST;
+        $country_id = $req['country_id'];
+        return $this->countryService->getCities($country_id);
+    }
     public function postAdd()
     {
         $inputJSON = file_get_contents('php://input');

@@ -43,18 +43,15 @@ class PlaceModel
         }
         return $this->conn->getRowArray($this->table, $id);
     }
-    public function listType($type, $page, $limit)
+
+    public function countPlaces($type = -1)
     {
-        $firstRow = $page * $limit;
-        $sql = 'SELECT * FROM ' . $this->table . ' WHERE `type` = ' . $type . ' LIMIT ' . $firstRow . ',' . $limit;
-        return $this->conn->query($sql);
+        $WHERE = $type == -1 ? '' : 'WHERE type = ' . $type;
+        $sql = "SELECT COUNT(*) as total FROM $this->table $WHERE";
+        $data = $this->conn->query($sql);
+        return $data[0]->total;
     }
-    public function listCity($city_id, $type, $page, $limit)
-    {
-        $firstRow = $page * $limit;
-        $sql = 'SELECT * FROM ' . $this->table . ' WHERE `type` = ' . $type . ' AND `city_id` = ' . $city_id . ' LIMIT ' . $firstRow . ',' . $limit;
-        return $this->conn->query($sql);
-    }
+
     public function create($data)
     {
         return $this->conn->insert($this->table, $data);

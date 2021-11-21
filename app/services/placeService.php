@@ -80,30 +80,13 @@ class PlaceService
         return null;
     }
 
-    public function listType($req)
+    public function pages($req)
     {
-        $type = (isset($req['type'])) ? (int)$req['type'] : 0;
-        $page = isset($req['page']) ? (int)($req['page']) : 0;
-        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->place->listType($type, $page, $limit);
-        return $this->container->status(200, $result);
-    }
-    public function listCity($req)
-    {
-        $city = (int)$req['city_id'];
-        $type = (isset($req['type'])) ? (int)$req['type'] : 0;
-        $page = isset($req['page']) ? (int)($req['page']) : 0;
-        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->place->listCity($city, $type, $page, $limit);
-        return $this->container->status(200, $result);
-    }
-    public function page($req)
-    {
-        $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->place->getAll($limit);
-        $totalRow = count($result);
-        $pages = (int)($totalRow / $limit) + 1;
-        return $this->container->status(200, $pages);
+        $type = isset($req['type']) ? $req['type'] : -1;
+        $limit = isset($req['limit']) ? $req['limit'] : 20;
+        $totalPlaces = $this->place->countPlaces($type);
+        $totalPages = ceil($totalPlaces / $limit);
+        return $this->container->status(200, $totalPages);
     }
     public function add($req)
     {
@@ -133,7 +116,7 @@ class PlaceService
             $msg = 'Add place to database fail';
             return $this->container->status(500, $msg);
         }
-        $this->addPlacesCity($req['city_id']);
+        //$this->addPlacesCity($req['city_id']);
         $msg = 'Add place to database success';
         return $this->container->status(200, $msg);
     }

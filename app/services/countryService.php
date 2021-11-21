@@ -42,6 +42,12 @@ class CountryService
         $pages = (int)($totalRow / $limit) + 1;
         return $this->container->status(200, $pages);
     }
+
+    public function getCities($country_id)
+    {
+        $result = $this->country->getCities($country_id);
+        return $this->container->status(200, $result);
+    }
     public function add($req)
     {
 
