@@ -14,11 +14,15 @@ class CountryModel
     {
         $this->conn = new DB();
     }
-    public function getAll(){
+    public function getAll()
+    {
         return $this->conn->getArray($this->table);
     }
     public function get($id = -1, $page = 0, $limit = 20)
     {
+        if ($limit = -1) {
+            return $this->getAll();
+        }
         if ($id == -1) {
             $firstRow = $page * $limit;
             $sql = 'SELECT * FROM ' . $this->table . ' LIMIT ' . $firstRow . ',' . $limit;
