@@ -7,53 +7,59 @@ require_once('app/services/placeService.php');
 
 use Core\Http\BaseController;
 use App\Services\PlaceService;
-class placeController extends BaseController{
+
+class placeController extends BaseController
+{
     private $placeService;
-    public function __construct(){
+    public function __construct()
+    {
         $this->placeService = new PlaceService();
     }
     public function index()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
-        return $this->placeService->listALL($req);
+        $req = $_REQUEST;
+        if (isset($req['id'])) return $this->placeService->getPlace((int)$req['id']);
+        return $this->placeService->listAll($req);
     }
     public function page()
     {
-        $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = $_REQUEST;
         return $this->placeService->page($req);
     }
-    public function listType(){
+    public function listType()
+    {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = json_decode($inputJSON, true);
         return $this->placeService->listType($req);
     }
-    public function listCity(){
+    public function listCity()
+    {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = json_decode($inputJSON, true);
         return $this->placeService->listCity($req);
-
     }
-    public function postAdd(){
+    public function postAdd()
+    {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = json_decode($inputJSON, true);
         return $this->placeService->add($req);
-    }  
-    public function getEdit(){
+    }
+    public function getEdit()
+    {
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
         $id = (int)$req['id'];
         return $this->placeService->getEdit($id);
-        
     }
-    public function postEdit(){
+    public function postEdit()
+    {
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
         $id = (int)$req['id'];
-        return $this->placeService->postEdit($id,$req);
+        return $this->placeService->postEdit($id, $req);
     }
-    public function delete(){
+    public function delete()
+    {
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
         $id = (int)$req['id'];

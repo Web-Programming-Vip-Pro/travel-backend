@@ -48,7 +48,8 @@ $router->post("/blog/edit", 'blogController@postEdit'); //req[id]
 $router->get("/blog/delete", 'blogController@delete'); //req[id]
 $router->get("/blog/pages", 'blogController@page');
 // route group place
-$router->get("/places", 'placeController@index'); // list all place
+$router->get("/places.*?", 'placeController@index'); // list all place
+$router->get("/place.*?", 'placeController@index'); // list all place
 $router->get("/place/list", 'placeController@listType'); // get list follow with type @param type(default 0) 
 $router->get("/city/places", 'placeController@listCity'); // get list follow with city and type @param type(defalut 0),city_id 
 $router->post("/place/add", 'placeController@postAdd');

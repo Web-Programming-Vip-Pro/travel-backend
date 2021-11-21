@@ -5,14 +5,17 @@ namespace App\Services;
 require_once('core/http/Container.php');
 require_once('app/models/placeModel.php');
 require_once('app/models/cityModel.php');
+require_once('app/models/userModel.php');
 require_once('app/validators/placeValidate.php');
 require_once('app/middleware/middleware.php');
 
 use App\Models\PlaceModel;
 use App\Models\CityModel;
+use App\Models\UserModel;
 use App\Middleware\Middleware;
 use App\Validator\PlaceValidate;
 use Core\Http\BaseController;
+
 class PlaceService
 {
     private $place;
@@ -28,49 +31,89 @@ class PlaceService
         $this->place        = new PlaceModel();
         $this->middleware   = new Middleware();
         $this->city         = new CityModel();
-        $this->user         = $this->middleware->handleAgency();
+        $this->user         = new UserModel();
         $this->admin         = $this->middleware->handleAdmin();
     }
-    public function listAll($req){
-        if($this->admin == false){
-            return $this->container->status(401,"Unauthorized");
-        }
+    public function listAll($req)
+    {
         $page = isset($req['page']) ? (int)($req['page']) : 0;
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->place->get(-1,$page,$limit);
-        return $this->container->status(200,$result);
+        $type = isset($req['type']) ? $req['type'] : -1;
+        $order = isset($req['order']) ? $req['order'] : 'recent';
+        $result = $this->place->get(-1, $page, $limit, $type, $order);
+        if ($result) {
+            foreach ($result as $key => $value) {
+                $city = $this->city->get((int)$value->city_id);
+                $result[$key]->city = $city;
+                $result[$key]->images = json_decode($value->images);
+                $result[$key]->amenities = json_decode($value->amenities);
+                $result[$key]->author = $this->getAuthor((int)$value->author_id);
+            }
+            return $this->container->status(200, $result);
+        }
+        return $this->container->status(200, []);
     }
-    public function listType($req){
+
+    public function getPlace($id)
+    {
+        $result = $this->place->get($id);
+        if ($result) {
+            $result = (object)$result;
+            $city = $this->city->get((int)$result->city_id);
+            $result->city = $city;
+            $result->images = json_decode($result->images);
+            $result->amenities = json_decode($result->amenities);
+            $result->author = $this->getAuthor((int)$result->author_id);
+            return $this->container->status(200, $result);
+        }
+        return $this->container->status(200, $result);
+    }
+
+    public function getAuthor($id)
+    {
+        $result = $this->user->get($id);
+        if ($result) {
+            unset($result['password']);
+            unset($result['bio']);
+            return $result;
+        }
+        return null;
+    }
+
+    public function listType($req)
+    {
         $type = (isset($req['type'])) ? (int)$req['type'] : 0;
         $page = isset($req['page']) ? (int)($req['page']) : 0;
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->place->listType($type,$page,$limit);
-        return $this->container->status(200,$result);
+        $result = $this->place->listType($type, $page, $limit);
+        return $this->container->status(200, $result);
     }
-    public function listCity($req){
+    public function listCity($req)
+    {
         $city = (int)$req['city_id'];
         $type = (isset($req['type'])) ? (int)$req['type'] : 0;
         $page = isset($req['page']) ? (int)($req['page']) : 0;
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
-        $result = $this->place->listCity($city,$type,$page,$limit);
-        return $this->container->status(200,$result);
+        $result = $this->place->listCity($city, $type, $page, $limit);
+        return $this->container->status(200, $result);
     }
-    public function page($req){
+    public function page($req)
+    {
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
         $result = $this->place->getAll($limit);
         $totalRow = count($result);
         $pages = (int)($totalRow / $limit) + 1;
-        return $this->container->status(200,$pages);
+        return $this->container->status(200, $pages);
     }
     public function add($req)
     {
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
+
+        $msgs = $this->handleValidator($req, 'add');
+        if ($msgs != false) {
+            return $this->container->status(422, $msgs);
         }
-        $msgs = $this->handleValidator($req,'add');
-        if($msgs != false){
-            return $this->container->status(422,$msgs);
-        }
+        $req['amenities'] = isset($req['amenities']) ? json_encode($req['amenities']) : '';
+        $req['images'] = isset($req['images']) ? json_encode($req['images']) : '';
         $data = [
             'title'         => $req['title'],
             'city_id'       => $req['city_id'],
@@ -79,45 +122,43 @@ class PlaceService
             'images'        => $req['images'],
             'location'      => $req['location'],
             'description'   => $req['description'],
+            'amenities'   => $req['amenities'],
             'stars'         => 0.0,
             'reviews'       => 0,
             'status'        => 0,
-            'author_id'     => $this->user->id,
+            'author_id'     => $req['author_id'],
         ];
         $result = $this->place->create($data);
-        if($result == false){
-            $msg= 'Add place to database fail';
-            return $this->container->status(500,$msg);
+        if ($result == false) {
+            $msg = 'Add place to database fail';
+            return $this->container->status(500, $msg);
         }
         $this->addPlacesCity($req['city_id']);
-        $msg= 'Add place to database success';
-        return $this->container->status(200,$msg);
+        $msg = 'Add place to database success';
+        return $this->container->status(200, $msg);
     }
     // function get edit  place 
-    public function getEdit($id){
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
-        }
+    public function getEdit($id)
+    {
+
         $msgHandleId = $this->handleId($id);
-        if($msgHandleId != false){
-            return $this->container->status(500,$msgHandleId);
+        if ($msgHandleId != false) {
+            return $this->container->status(500, $msgHandleId);
         }
         $msg = $this->place->get($id);
-        return $this->container->status(200,$msg);
+        return $this->container->status(200, $msg);
     }
     // function post edit place
-    public function postEdit($id,$req)
+    public function postEdit($id, $req)
     {
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
-        }
+
         $msgHandleId = $this->handleId($id);
-        if($msgHandleId != false){
-            return $this->container->status(500,$msgHandleId);
+        if ($msgHandleId != false) {
+            return $this->container->status(500, $msgHandleId);
         }
-        $msgs = $this->handleValidator($req,'edit');
-        if($msgs != false){
-            return $this->container->status(422,$msgs);
+        $msgs = $this->handleValidator($req, 'edit');
+        if ($msgs != false) {
+            return $this->container->status(422, $msgs);
         }
         $data = [
             'title'         => $req['title'],
@@ -127,60 +168,62 @@ class PlaceService
             'location'      => $req['location'],
             'description'   => $req['description'],
         ];
-        if(isset($req['status'])){
+        if (isset($req['status'])) {
             $data['status']        = $req['status'];
         }
-        if(isset($req['images'])){
+        if (isset($req['images'])) {
             $data['images'] = $req['images'];
         }
-        $result = $this->place->update($id,$data);
-        if($result == true){
+        $result = $this->place->update($id, $data);
+        if ($result == true) {
             $msg =  'Update place success';
-            return $this->container->status(200,$msg);
+            return $this->container->status(200, $msg);
         }
         $msg = 'Update place error';
-        return $this->container->status(500,$msg);
+        return $this->container->status(500, $msg);
     }
     // function delete place
-    public function delete ($id){
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
-        }
+    public function delete($id)
+    {
+
         $msgHandleId = $this->handleId($id);
-        if($msgHandleId != false){
-            return $this->container->status(500,$msgHandleId);
+        if ($msgHandleId != false) {
+            return $this->container->status(500, $msgHandleId);
         }
         $this->place->delete($id);
         $msg = 'Delete place success';
-        return $this->container->status(200,$msg);
+        return $this->container->status(200, $msg);
     }
     // fucntion handle validate 
-    public function handleValidator($req,$action){
+    public function handleValidator($req, $action)
+    {
         $msgs = null;
-        if($action == 'add'){
-            $msgs = $this->validate->add($req); 
-        }else{
-            $msgs = $this->validate->edit($req); 
+        if ($action == 'add') {
+            $msgs = $this->validate->add($req);
+        } else {
+            $msgs = $this->validate->edit($req);
         }
-        if(count($msgs) > 0){
+        if (count($msgs) > 0) {
             return $msgs;
-        } 
+        }
         return false;
     }
     // fucntion handle id if not fill or not exact
-    public function handleId($id){
-        if($id == 0){
+    public function handleId($id)
+    {
+        if ($id == 0) {
             return 'Id not fill in';
         }
         $resultGetById = $this->place->get($id);
-        if($resultGetById == null){
+        if ($resultGetById == null) {
             return  'Id not exactly';
         }
         return false;
     }
-    public function addPlacesCity($cityId){
+    public function addPlacesCity($cityId)
+    {
         $result = $this->city->get($cityId);
-        $data['total_places'] = $result['total_places'] +1;
-        $this->city->update($cityId,$data);
+        $data['total_places'] = $result['total_places'] + 1;
+        $this->city->update($cityId, $data);
     }
 }
