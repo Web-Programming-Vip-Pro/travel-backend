@@ -6,12 +6,14 @@ require_once('core/http/Container.php');
 require_once('app/models/placeModel.php');
 require_once('app/models/cityModel.php');
 require_once('app/models/userModel.php');
+require_once('app/models/countryModel.php');
 require_once('app/validators/placeValidate.php');
 require_once('app/middleware/middleware.php');
 
 use App\Models\PlaceModel;
 use App\Models\CityModel;
 use App\Models\UserModel;
+use App\Models\CountryModel;
 use App\Middleware\Middleware;
 use App\Validator\PlaceValidate;
 use Core\Http\BaseController;
@@ -24,6 +26,7 @@ class PlaceService
     private $container;
     private $user;
     private $city;
+    private $country;
     public function __construct()
     {
         $this->container    = new BaseController();
@@ -31,6 +34,7 @@ class PlaceService
         $this->place        = new PlaceModel();
         $this->middleware   = new Middleware();
         $this->city         = new CityModel();
+        $this->country     = new CountryModel();
         $this->user         = new UserModel();
         $this->admin         = $this->middleware->handleAdmin();
     }
@@ -61,7 +65,9 @@ class PlaceService
         if ($result) {
             $result = (object)$result;
             $city = $this->city->get((int)$result->city_id);
+            $country = $this->country->get((int)$city['country_id']);
             $result->city = $city;
+            $result->country = $country;
             $result->images = json_decode($result->images);
             $result->amenities = json_decode($result->amenities);
             $result->author = $this->getAuthor((int)$result->author_id);
@@ -98,6 +104,7 @@ class PlaceService
         }
         $req['amenities'] = isset($req['amenities']) ? json_encode($req['amenities']) : '';
         $req['images'] = isset($req['images']) ? json_encode($req['images']) : '';
+        $req['status'] = isset($req['status']) ? $req['status'] : 0;
         $data = [
             'title'         => $req['title'],
             'city_id'       => $req['city_id'],
@@ -109,7 +116,7 @@ class PlaceService
             'amenities'   => $req['amenities'],
             'stars'         => 0.0,
             'reviews'       => 0,
-            'status'        => 0,
+            'status'        => $req['status'],
             'author_id'     => $req['author_id'],
         ];
         $result = $this->place->create($data);
@@ -117,25 +124,13 @@ class PlaceService
             $msg = 'Add place to database fail';
             return $this->container->status(500, $msg);
         }
-        //$this->addPlacesCity($req['city_id']);
+        $this->updateTotalPlaces((int)$req['city_id'], 'add');
         $msg = 'Add place to database success';
-        return $this->container->status(200, $msg);
-    }
-    // function get edit  place 
-    public function getEdit($id)
-    {
-
-        $msgHandleId = $this->handleId($id);
-        if ($msgHandleId != false) {
-            return $this->container->status(500, $msgHandleId);
-        }
-        $msg = $this->place->get($id);
         return $this->container->status(200, $msg);
     }
     // function post edit place
     public function postEdit($id, $req)
     {
-
         $msgHandleId = $this->handleId($id);
         if ($msgHandleId != false) {
             return $this->container->status(500, $msgHandleId);
@@ -144,20 +139,21 @@ class PlaceService
         if ($msgs != false) {
             return $this->container->status(422, $msgs);
         }
+        $req['amenities'] = isset($req['amenities']) ? json_encode($req['amenities']) : '';
+        $req['images'] = isset($req['images']) ? json_encode($req['images']) : '';
+        $req['status'] = isset($req['status']) ? $req['status'] : 0;
         $data = [
             'title'         => $req['title'],
             'city_id'       => $req['city_id'],
             'type'          => $req['type'],
             'price'         => $req['price'],
+            'images'        => $req['images'],
             'location'      => $req['location'],
             'description'   => $req['description'],
+            'amenities'   => $req['amenities'],
+            'status'        => $req['status'],
+            'author_id'     => $req['author_id'],
         ];
-        if (isset($req['status'])) {
-            $data['status']        = $req['status'];
-        }
-        if (isset($req['images'])) {
-            $data['images'] = $req['images'];
-        }
         $result = $this->place->update($id, $data);
         if ($result == true) {
             $msg =  'Update place success';
@@ -169,11 +165,8 @@ class PlaceService
     // function delete place
     public function delete($id)
     {
-
-        $msgHandleId = $this->handleId($id);
-        if ($msgHandleId != false) {
-            return $this->container->status(500, $msgHandleId);
-        }
+        $place = $this->place->get($id);
+        $this->updateTotalPlaces((int)$place['city_id'], 'remove');
         $this->place->delete($id);
         $msg = 'Delete place success';
         return $this->container->status(200, $msg);
@@ -204,10 +197,14 @@ class PlaceService
         }
         return false;
     }
-    public function addPlacesCity($cityId)
+    public function updateTotalPlaces($cityId, $action)
     {
         $result = $this->city->get($cityId);
-        $data['total_places'] = $result['total_places'] + 1;
+        if ($action == 'add') {
+            $data['total_places'] = $result['total_places'] + 1;
+        } else {
+            $data['total_places'] = $result['total_places'] - 1;
+        }
         $this->city->update($cityId, $data);
     }
 }
