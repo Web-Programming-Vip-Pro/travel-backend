@@ -58,6 +58,7 @@ class CountryService
         }
         $data = [
             'name' => $req['name'],
+            'image' => $req['image'],
         ];
         // image
         $result = $this->country->create($data);
@@ -95,6 +96,7 @@ class CountryService
         }
         $data = [
             'name' => $req['name'],
+            'image' => $req['image'],
         ];
         $result = $this->country->update($id, $data);
         if ($result == true) {

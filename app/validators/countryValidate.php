@@ -15,6 +15,9 @@ class CountryValidate{
         if (!isset($req['name'])) {
             array_push($msg, 'Please fill out name country');
         }
+        if (!isset($req['image'])) {
+            array_push($msg, 'Please fill out country image');
+        }
         return $msg;
 
     }        
@@ -26,4 +29,3 @@ class CountryValidate{
         return $msg;
     }        
 }
-?>
