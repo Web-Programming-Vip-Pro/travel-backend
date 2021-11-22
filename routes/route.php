@@ -39,6 +39,7 @@ $router->post("/city/add", 'cityController@postAdd');
 $router->post("/city/edit", 'cityController@postEdit'); //req[id]
 $router->post("/city/delete", 'cityController@delete'); //req[id]
 $router->get("/city/pages.*?", 'cityController@page');
+$router->get("/city/search.*?", 'cityController@search');
 $router->get("/cities.*?", 'cityController@index');
 $router->get("/city.*?", 'cityController@get');
 // route group blog

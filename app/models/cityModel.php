@@ -21,12 +21,23 @@ class CityModel
     public function get($id = -1, $page = 0, $limit = 20, $order = 'DESC')
     {
         if ($id == -1) {
-            $firstRow = $page * $limit;
-            $sql = "SELECT * FROM $this->table ORDER BY id $order LIMIT $firstRow, $limit";
+            if ($limit = -1) {
+                $sql = 'SELECT * FROM ' . $this->table . ' ORDER BY `id` ' . $order;
+            } else {
+                $firstRow = $page * $limit;
+                $sql = 'SELECT * FROM ' . $this->table . ' ORDER BY `id` ' . $order . ' LIMIT ' . $firstRow . ',' . $limit;
+            }
             $data = $this->conn->query($sql);
             return $data;
         }
         return $this->conn->getRowArray($this->table, $id);
+    }
+
+    public function search($e)
+    {
+        $sql = 'SELECT * FROM ' . $this->table . ' WHERE `name` LIKE "%' . $e . '%" OR `country_id` = (SELECT `id` FROM `tb_country` WHERE `name` LIKE "%' . $e . '%")';
+        $data = $this->conn->query($sql);
+        return $data;
     }
 
     public function create($data)

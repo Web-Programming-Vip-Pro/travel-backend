@@ -52,6 +52,17 @@ class CityService
         return $this->container->status(200, $result);
     }
 
+    public function search($req)
+    {
+        $q = isset($req['q']) ? $req['q'] : '';
+        $result = $this->city->search($q);
+        if (!$result) $result = [];
+        foreach ($result as $key => $value) {
+            $result[$key]->country = $this->country->get((int)$value->country_id);
+        }
+        return $this->container->status(200, $result);
+    }
+
     public function page($req)
     {
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
