@@ -42,6 +42,16 @@ class CityService
         }
         return $this->container->status(200, $result);
     }
+
+    public function get($req)
+    {
+        $id = isset($req['id']) ? (int)($req['id']) : -1;
+        $result = $this->city->get($id);
+        if (!$result) return $this->container->status(404, 'Not found');
+        $result['country'] = $this->country->get((int)$result['country_id']);
+        return $this->container->status(200, $result);
+    }
+
     public function page($req)
     {
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;

@@ -20,6 +20,13 @@ class cityController extends BaseController
         $req = $_REQUEST;
         return $this->cityService->list($req);
     }
+
+    public function get()
+    {
+        $req = $_REQUEST;
+        return $this->cityService->get($req);
+    }
+
     public function page()
     {
         $req = $_REQUEST;
