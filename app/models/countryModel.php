@@ -20,10 +20,10 @@ class CountryModel
     }
     public function get($id = -1, $page = 0, $limit = 20)
     {
-        if ($limit = -1) {
-            return $this->getAll();
-        }
         if ($id == -1) {
+            if ($limit = -1) {
+                return $this->getAll();
+            }
             $firstRow = $page * $limit;
             $sql = 'SELECT * FROM ' . $this->table . ' LIMIT ' . $firstRow . ',' . $limit;
             return $this->conn->query($sql);
