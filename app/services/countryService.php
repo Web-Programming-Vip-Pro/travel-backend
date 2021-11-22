@@ -32,6 +32,7 @@ class CountryService
         $page = isset($req['page']) ? (int)($req['page']) : 0;
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
         $result = $this->country->get(-1, $page, $limit);
+        if (!$result) $result = [];
         return $this->container->status(200, $result);
     }
     public function page($req)
