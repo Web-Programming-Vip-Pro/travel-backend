@@ -55,6 +55,7 @@ $router->post("/place/edit", 'placeController@postEdit'); //req[id]
 $router->post("/place/delete", 'placeController@delete'); //req[id]
 $router->get("/place/search.*?", 'placeController@search'); //req[id]
 $router->get("/place/pages.*?", 'placeController@pages');
+$router->get("/place/statistics.*?", 'placeController@getStatistic');
 $router->get("/places.*?", 'placeController@index'); // list all place
 $router->get("/place.*?", 'placeController@index'); // list all place
 // route group transaction

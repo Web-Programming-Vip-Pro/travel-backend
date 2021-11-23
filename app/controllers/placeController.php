@@ -33,6 +33,12 @@ class placeController extends BaseController
         return $this->placeService->search($req);
     }
 
+    public function getStatistic()
+    {
+        $req = $_REQUEST;
+        return $this->placeService->getStatistic($req);
+    }
+
     public function postAdd()
     {
         $inputJSON = file_get_contents('php://input');

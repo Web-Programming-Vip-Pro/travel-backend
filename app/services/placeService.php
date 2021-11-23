@@ -152,6 +152,18 @@ class PlaceService
         if ($msgs != false) {
             return $this->container->status(422, $msgs);
         }
+        // get current place
+        $place = $this->place->get($id);
+        if ($place == false) {
+            $msg = 'Place not found';
+            return $this->container->status(404, $msg);
+        }
+        // if city_id change, update total places
+        if ($place['city_id'] != $req['city_id']) {
+            $this->updateTotalPlaces($place['city_id'], 'sub');
+            $this->updateTotalPlaces($req['city_id'], 'add');
+        }
+
         $req['amenities'] = isset($req['amenities']) ? json_encode($req['amenities']) : '';
         $req['images'] = isset($req['images']) ? json_encode($req['images']) : '';
         $req['status'] = isset($req['status']) ? $req['status'] : 0;
@@ -175,6 +187,17 @@ class PlaceService
         $msg = 'Update place error';
         return $this->container->status(500, $msg);
     }
+
+    public function getStatistic($req)
+    {
+        $type = isset($req['type']) ? $req['type'] : -1;
+        $result = $this->place->getStatistic();
+        if ($result) {
+            return $this->container->status(200, $result);
+        }
+        return $this->container->status(200, []);
+    }
+
     // function delete place
     public function delete($id)
     {

@@ -84,6 +84,14 @@ class PlaceModel
     {
         return $this->conn->insert($this->table, $data);
     }
+
+    public function getStatistic()
+    {
+        $sql = "SELECT type, COUNT(*) as total FROM $this->table GROUP BY type";
+        $data = $this->conn->query($sql);
+        return $data;
+    }
+
     public function update($id, $data)
     {
         return $this->conn->update($this->table, $data, $id);
