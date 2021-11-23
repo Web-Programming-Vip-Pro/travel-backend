@@ -201,9 +201,6 @@ class UserService
     }
     public function updateInfo($id, $req)
     {
-        if ($this->userMiddle == false) {
-            return $this->controller->status(401, "Unauthorized");
-        }
         $msg = $this->handleValidator($req, 'edit');
         if ($msg != false) {
             return $this->controller->status(422, $msg);
@@ -212,24 +209,19 @@ class UserService
             "name"          => $req["name"],
             "bio"           => $req['bio'],
         ];
-        if (isset($req['avatar'])) {
-            $data['avatar']  = $req['avatar'];
+        $data['social'] = isset($req['social']) ? json_encode($req['social']) : null;
+        $user = $this->user->get($id);
+        // verify password
+        if (!password_verify($req['password'], $user['password'])) {
+            $msg = 'Password incorrect';
+            return $this->controller->status(422, $msg);
         }
-        if (isset($req['image_cover'])) {
-            $data['image_cover']  = $req['image_cover'];
-        }
-        $data['info'] = $this->helper->jsonEncodeInfo($req);
-        $data['social'] = $this->helper->jsonEncodeSocial($req);
-        $result = $this->user->get($id);
-        if (isset($req['password']) && $req['email'] != $result['email']) {
-            if (!password_verify($req['password'], $result['password'])) {
-                $msg = 'Password incorrect';
-                return $this->controller->status(500, $msg);
-            }
+        // if user email changed, check email is exist
+        if ($req['email'] != $user['email']) {
             $resultByEmail = $this->user->getByEmail($req['email']);
             if ($resultByEmail != null) {
-                $msg = 'User existed';
-                return $this->controller->status(500, $msg);
+                $msg = 'Email existed';
+                return $this->controller->status(422, $msg);
             }
             $data['email'] = $req['email'];
         }
@@ -262,19 +254,22 @@ class UserService
         }
         $email = $req['email'];
         $password = $req['password'];
-        $resultByEmail = $this->user->getByEmail($email);
-        if ($resultByEmail == null) {
+        $user = $this->user->getByEmail($email);
+        if ($user == null) {
             $msg =  'User not existed';
             return $this->controller->status(500, $msg);
         }
-        $passwordHash = $resultByEmail[0]->password;
-        // $verify =password_verify($password, $passwordHash;
+        $user = $user[0];
+        $passwordHash = $user->password;
         if (!password_verify($password, $passwordHash)) {
             $msg = 'Password incorrect';
             return $this->controller->status(500, $msg);
         }
-        unset($resultByEmail[0]->password);
-        return $this->controller->status(200, $resultByEmail[0]);
+        unset($user->password);
+        if ($user->social) {
+            $user->social = json_decode($user->social);
+        }
+        return $this->controller->status(200, $user);
     }
     public function register($req)
     {
@@ -345,23 +340,31 @@ class UserService
         $msg = 'Reset password fail';
         return $this->controller->status(500, $msg);
     }
-    public function changePassword($req)
+    public function updatePassword($req)
     {
-        if ($this->userMiddle == false) {
-            return $this->controller->status(401, "Unauthorized");
-        }
-        $msg = $this->handleValidator($req, 'changePassword');
+        $msg = $this->handleValidator($req, 'updatePassword');
         if ($msg != false) {
             return $this->controller->status(422, $msg);
         }
+        // check if new password & confirm password is same
+        $userId = (int)$req['id'];
         $oldPassword = $req['oldPassword'];
-        // $verify =password_verify($password, $passwordHash;
-        if (!password_verify($oldPassword, $this->userMiddle->password)) {
-            $msg = 'Old password incorrect';
+        // get user
+        $user = $this->user->get($userId);
+        if ($user == null) {
+            $msg = 'User not existed';
             return $this->controller->status(500, $msg);
         }
-        $data['password'] = $req['newPassword'];
-        $result = $this->user->update((int)$this->userMiddle->id, $data);
+        $passwordHash = $user['password'];
+        if (!password_verify($oldPassword, $passwordHash)) {
+            $msg = 'Password incorrect';
+            return $this->controller->status(500, $msg);
+        }
+        $hashed_password = password_hash($req['newPassword'], PASSWORD_DEFAULT);
+        $data = [
+            "password"          => $hashed_password,
+        ];
+        $result = $this->user->update($userId, $data);
         if ($result == true) {
             $msg = 'Change password success';
             return $this->controller->status(200, $msg);
@@ -384,8 +387,8 @@ class UserService
         if ($action == 'login') {
             $msgs = $this->validate->login($req);
         }
-        if ($action == 'changePassword') {
-            $msgs = $this->validate->changePassword($req);
+        if ($action == 'updatePassword') {
+            $msgs = $this->validate->updatePassword($req);
         }
         if ($action == 'register') {
             $msgs = $this->validate->register($req);

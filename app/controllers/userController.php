@@ -69,8 +69,13 @@ class userController extends BaseController
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
         $id = (int)$req['id'];
-        var_dump($req);
         return $this->userService->updateInfo($id, $req);
+    }
+    public function updatePassword()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req = json_decode($inputJSON, true);
+        return $this->userService->updatePassword($req);
     }
     public function delete()
     {
@@ -96,11 +101,5 @@ class userController extends BaseController
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
         return $this->userService->forget($req);
-    }
-    public function changePassword()
-    {
-        $inputJSON = file_get_contents('php://input');
-        $req = json_decode($inputJSON, true);
-        return $this->userService->changePassword($req);
     }
 }

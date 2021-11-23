@@ -7,8 +7,8 @@ $router->get("/user/edit", 'userController@getEdit'); //req[id]
 $router->post("/user/edit", 'userController@postEdit'); // req[id]
 $router->post("/user/update", 'userController@update'); // admin update
 $router->post("/user/updateInfo", 'userController@updateInfo'); // req[id]
+$router->post('/user/updatePassword', 'userController@updatePassword');
 $router->post("/user/delete", 'userController@delete'); // req[id]
-$router->post('user/changePassword', 'userController@changePassword');
 // get pages user
 $router->get("/user/pages.*?", 'userController@page');
 // wishlist
