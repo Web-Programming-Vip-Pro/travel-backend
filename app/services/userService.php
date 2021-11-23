@@ -209,6 +209,12 @@ class UserService
             "name"          => $req["name"],
             "bio"           => $req['bio'],
         ];
+        if (isset($req['avatar'])) {
+            $data['avatar']  = $req['avatar'];
+        }
+        if (isset($req['image_cover'])) {
+            $data['image_cover']  = $req['image_cover'];
+        }
         $data['social'] = isset($req['social']) ? json_encode($req['social']) : null;
         $user = $this->user->get($id);
         // verify password
