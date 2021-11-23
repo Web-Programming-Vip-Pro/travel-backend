@@ -58,6 +58,27 @@ class PlaceModel
         $data = $this->conn->query($sql);
         return $data[0]->total;
     }
+    // search by title, location, type, city name (from city table), country name (from country table)
+    public function search($q, $page = 0, $limit = 5)
+    {
+        // search by title, location, type
+        $sql = "SELECT * FROM $this->table WHERE title LIKE '%$q%' OR location LIKE '%$q%' OR type LIKE '%$q%' LIMIT $page, $limit";
+        $data = $this->conn->query($sql);
+        $data = $data ? $data : [];
+        // search by city name (from city table)
+        $sql = "SELECT * FROM $this->table INNER JOIN tb_city ON tb_place.city_id = tb_city.id WHERE tb_city.name LIKE '%$q%' LIMIT $page, $limit";
+        $data2 = $this->conn->query($sql);
+        $data2 = $data2 ? $data2 : [];
+        // search by country name (from country table)
+        $sql = "SELECT * FROM $this->table INNER JOIN tb_country ON tb_place.country_id = tb_country.id WHERE tb_country.name LIKE '%$q%' LIMIT $page, $limit";
+        $data3 = $this->conn->query($sql);
+        $data3 = $data3 ? $data3 : [];
+
+        $result = array_merge($data, $data2, $data3);
+        //get first 10 results
+        $result = array_slice($result, $page, $limit);
+        return $result;
+    }
 
     public function create($data)
     {

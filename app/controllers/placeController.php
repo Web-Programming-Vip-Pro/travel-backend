@@ -27,6 +27,12 @@ class placeController extends BaseController
         return $this->placeService->pages($req);
     }
 
+    public function search()
+    {
+        $req = $_REQUEST;
+        return $this->placeService->search($req);
+    }
+
     public function postAdd()
     {
         $inputJSON = file_get_contents('php://input');

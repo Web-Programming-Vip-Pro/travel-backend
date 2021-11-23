@@ -128,6 +128,19 @@ class PlaceService
         $msg = 'Add place to database success';
         return $this->container->status(200, $msg);
     }
+
+    public function search($req)
+    {
+        $q = isset($req['q']) ? $req['q'] : '';
+        if ($q == '') {
+            return $this->container->status(200, []);
+        }
+        $result = $this->place->search($q);
+        if ($result)
+            return $this->container->status(200, $result);
+        return $this->container->status(200, []);
+    }
+
     // function post edit place
     public function postEdit($id, $req)
     {
