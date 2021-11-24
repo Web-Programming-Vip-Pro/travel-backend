@@ -12,9 +12,10 @@ $router->post("/user/delete", 'userController@delete'); // req[id]
 // get pages user
 $router->get("/user/pages.*?", 'userController@page');
 // wishlist
-$router->get("/user/wishlist", 'wishlistController@index'); // @param id_user
-$router->post("/user/wishlist/add", 'wishlistController@postAdd'); // @param id_place
-$router->get("/user/wishlist/delete", 'wishlistController@getEdit'); // @param id_wishlist
+$router->post("/wishlist/toggle", 'wishlistController@toggle'); // @param id_place
+$router->post("/wishlist/delete", 'wishlistController@getEdit'); // @param id_wishlist
+$router->get("/wishlist/isInWishList.*?", 'wishlistController@isInWishList'); // @param id_user
+$router->get("/wishlist.*?", 'wishlistController@index'); // @param id_user
 
 $router->post('/login', 'userController@login');
 $router->post('/register', 'userController@register');
