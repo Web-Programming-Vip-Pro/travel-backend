@@ -71,7 +71,7 @@ class WishlistService
             }
             return $this->controller->status(200, $result);
         } else {
-            return  $this->controller->status(404, 'Not found');
+            return  $this->controller->status(200, []);
         }
     }
     public function toggle($req)
