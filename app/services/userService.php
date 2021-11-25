@@ -93,7 +93,6 @@ class UserService
             "password"          => $hashed_password,
             "bio"               => $req["bio"],
             "avatar"            => $req['avatar'],
-            "status_agency"     => 0,
             "image_cover"       => $req['image_cover'],
             "blocked"       => $req['blocked'] ? $req['blocked'] : 0,
             "role"             => $req['role'] ? $req['role'] : 0,
@@ -110,22 +109,16 @@ class UserService
 
     public function update($req)
     {
-        if ($this->adminMiddle == false) {
-            return $this->controller->status(401, "Unauthorized");
-        }
         $msg = $this->handleValidator($req, 'add');
         if ($msg != false) {
             return $this->controller->status(422, $msg);
         }
-        $hashed_password = password_hash($req["password"], PASSWORD_DEFAULT);
         $id = (int)$req['id'];
         $data = [
             "name"              => $req["name"],
             "email"             => $req["email"],
-            "password"          => $hashed_password,
             "bio"               => $req["bio"],
             "avatar"            => $req['avatar'],
-            "status_agency"     => 0,
             "image_cover"       => $req['image_cover'],
             "blocked"       => $req['blocked'] ? $req['blocked'] : 0,
             "role"             => $req['role'] ? $req['role'] : 0,
@@ -153,9 +146,7 @@ class UserService
     }
     public function postEdit($id, $req)
     {
-        if ($this->userMiddle == false) {
-            return $this->controller->status(401, "Unauthorized");
-        }
+
         $msg = $this->handleId($id);
         if ($msg != false) {
             return $this->controller->status(500, $msg);
@@ -179,9 +170,6 @@ class UserService
         if ($this->userMiddle->role == 2) {
             if (isset($req['role'])) {
                 $data['role']           = $req['role'];
-            }
-            if (isset($req['status_agency'])) {
-                $data['status_agency']  = $req['status_agency'];
             }
             if (isset($req['blocked'])) {
                 $data['blocked']        = $req['blocked'];

@@ -31,7 +31,6 @@ class PageService
     public function update($id, $content)
     {
         $page = $this->page->get($id);
-        echo $id;
         if ($page) {
             $data = [
                 'content' => $content
