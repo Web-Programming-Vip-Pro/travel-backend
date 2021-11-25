@@ -140,8 +140,9 @@ class PlaceService
     }
 
     // function post edit place
-    public function postEdit($id, $req)
+    public function postEdit($req)
     {
+        $id = (int)$req['id'];
         $msgHandleId = $this->handleId($id);
         if ($msgHandleId != false) {
             return $this->container->status(500, $msgHandleId);
@@ -157,9 +158,9 @@ class PlaceService
             return $this->container->status(404, $msg);
         }
         // if city_id change, update total places
-        if ($place['city_id'] != $req['city_id']) {
-            $this->updateTotalPlaces($place['city_id'], 'sub');
-            $this->updateTotalPlaces($req['city_id'], 'add');
+        if ((int)$place['city_id'] != (int)$req['city_id']) {
+            $this->updateTotalPlaces((int)$place['city_id'], 'sub');
+            $this->updateTotalPlaces((int)$req['city_id'], 'add');
         }
 
         $req['amenities'] = isset($req['amenities']) ? json_encode($req['amenities']) : '';

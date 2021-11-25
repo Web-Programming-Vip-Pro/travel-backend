@@ -50,8 +50,7 @@ class placeController extends BaseController
     {
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
-        $id = (int)$req['id'];
-        return $this->placeService->postEdit($id, $req);
+        return $this->placeService->postEdit($req);
     }
     public function delete()
     {
