@@ -35,7 +35,8 @@ class CityService
         $page = isset($req['page']) ? (int)($req['page']) : 0;
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
         $order = isset($req['order']) ? $req['order'] : 'DESC';
-        $result = $this->city->get(-1, $page, $limit, $order);
+        $text = isset($req['text']) ? $req['text'] : null;
+        $result = $this->city->get(-1, $page, $limit, $order, $text);
         if (!$result) $result = [];
         foreach ($result as $key => $value) {
             $result[$key]->country = $this->country->get((int)$value->country_id);

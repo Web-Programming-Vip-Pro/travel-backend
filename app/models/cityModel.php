@@ -18,14 +18,19 @@ class CityModel
     {
         return $this->conn->getArray($this->table);
     }
-    public function get($id = -1, $page = 0, $limit = 20, $order = 'DESC')
+    public function get($id = -1, $page = 0, $limit = -1, $order = 'DESC', $text = null)
     {
         if ($id == -1) {
-            if ($limit = -1) {
-                $sql = 'SELECT * FROM ' . $this->table . ' ORDER BY `id` ' . $order;
+            $sql = '';
+            if ($limit == -1) {
+                $sql = "SELECT * FROM $this->table ORDER BY id $order";
             } else {
-                $firstRow = $page * $limit;
-                $sql = 'SELECT * FROM ' . $this->table . ' ORDER BY `id` ' . $order . ' LIMIT ' . $firstRow . ',' . $limit;
+                // if text, search by name or description
+                if ($text) {
+                    $sql = "SELECT * FROM $this->table WHERE name LIKE '%$text%' OR description LIKE '%$text%' ORDER BY id $order";
+                } else {
+                    $sql = "SELECT * FROM $this->table ORDER BY id $order LIMIT $page, $limit";
+                }
             }
             $data = $this->conn->query($sql);
             return $data;
