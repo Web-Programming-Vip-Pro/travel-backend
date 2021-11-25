@@ -104,7 +104,6 @@ class PlaceService
         }
         $req['amenities'] = isset($req['amenities']) ? json_encode($req['amenities']) : '';
         $req['images'] = isset($req['images']) ? json_encode($req['images']) : '';
-        $req['status'] = isset($req['status']) ? $req['status'] : 0;
         $data = [
             'title'         => $req['title'],
             'city_id'       => $req['city_id'],
@@ -116,7 +115,6 @@ class PlaceService
             'amenities'   => $req['amenities'],
             'stars'         => 0.0,
             'reviews'       => 0,
-            'status'        => $req['status'],
             'author_id'     => $req['author_id'],
         ];
         $result = $this->place->create($data);
@@ -166,7 +164,6 @@ class PlaceService
 
         $req['amenities'] = isset($req['amenities']) ? json_encode($req['amenities']) : '';
         $req['images'] = isset($req['images']) ? json_encode($req['images']) : '';
-        $req['status'] = isset($req['status']) ? $req['status'] : 0;
         $data = [
             'title'         => $req['title'],
             'city_id'       => $req['city_id'],
@@ -176,7 +173,6 @@ class PlaceService
             'location'      => $req['location'],
             'description'   => $req['description'],
             'amenities'   => $req['amenities'],
-            'status'        => $req['status'],
             'author_id'     => $req['author_id'],
         ];
         $result = $this->place->update($id, $data);
