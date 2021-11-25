@@ -18,14 +18,19 @@ class CountryModel
     {
         return $this->conn->getArray($this->table);
     }
-    public function get($id = -1, $page = 0, $limit = 20)
+    public function get($id = -1, $page = 0, $limit = 20, $text = null)
     {
         if ($id == -1) {
-            if ($limit = -1) {
+            if ($limit == -1) {
                 return $this->getAll();
             }
-            $firstRow = $page * $limit;
-            $sql = 'SELECT * FROM ' . $this->table . ' LIMIT ' . $firstRow . ',' . $limit;
+            // if text, search by name
+            $sql = '';
+            if ($text != null) {
+                $sql = "SELECT * FROM $this->table WHERE name LIKE '%$text%'";
+            } else {
+                $sql = "SELECT * FROM $this->table LIMIT $page, $limit";
+            }
             return $this->conn->query($sql);
         }
         return $this->conn->getRowArray($this->table, $id);
