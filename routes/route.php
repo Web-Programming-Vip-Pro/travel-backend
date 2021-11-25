@@ -9,6 +9,7 @@ $router->post("/user/update", 'userController@update'); // admin update
 $router->post("/user/updateInfo", 'userController@updateInfo'); // req[id]
 $router->post('/user/updatePassword', 'userController@updatePassword');
 $router->post("/user/delete", 'userController@delete'); // req[id]
+$router->post('/user/forget', 'userController@forget');
 // get pages user
 $router->get("/user/pages.*?", 'userController@page');
 // wishlist
@@ -19,7 +20,6 @@ $router->get("/wishlist.*?", 'wishlistController@index'); // @param id_user
 
 $router->post('/login', 'userController@login');
 $router->post('/register', 'userController@register');
-$router->post('/forget', 'userController@forget');
 // route group "/country"
 $router->get("/countries.*", 'countryController@index');
 $router->post("/country/add", 'countryController@postAdd');

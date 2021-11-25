@@ -311,36 +311,41 @@ class UserService
         if ($msg != false) {
             return $this->controller->status(422, $msg);
         }
-        $result = $this->user->getByEmail($req['email']);
-        if ($result == null) {
-            return $this->controller->status(500, "User not exactly");
+        $user = $this->user->getByEmail($req['email']);
+        if ($user == null) {
+            return $this->controller->status(500, "User not found!");
         }
+        $user = $user[0];
         $passReset = $this->helper->generateRandomString();
         $toMail = $req['email'];
-        $subject = "Forget Password with " . $req['email'];
+        $subject = "Request password reset from email $toMail - Fleety.space";
         $body = '<!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Document</title>
         </head>
         <body>
-            <h1>Your password reset.Please login with new password and change it soon.</h1>
-            <p>New Password :' . $passReset . '</p>
+            <h2>Your password has just been requested to reset. Here is your new password:</h2>
+            <p>New Password:' . $passReset . '</p>
+            <h2>Please login with new password and change it soon</h2>
         </body>
         </html>';
-        $success = $this->sendMail->sendMail($toMail, $subject, $body);
-        if (!$success) {
-            return $this->controller->status(500, "Send mail fail");
+        try {
+            $success = $this->sendMail->sendMail($toMail, $subject, $body);
+            if (!$success) {
+                return $this->controller->status(500, "Send mail fail");
+            }
+        } catch (\Exception $e) {
+            return $this->controller->status(500, $e->getMessage());
         }
-        $data = null;
         $hashed_password = password_hash($passReset, PASSWORD_DEFAULT);
-        $data['password'] = $hashed_password;
-        $result = $this->user->update((int)$result['id'], $data);
-        if ($result == true) {
-            $msg = 'Password sent to email.Please check email to using new password';
+        $user = $this->user->update((int)$user->id, [
+            "password" => $hashed_password
+        ]);
+        if ($user == true) {
+            $msg = 'Please check email to using new password';
             return $this->controller->status(200, $msg);
         }
         $msg = 'Reset password fail';
