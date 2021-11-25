@@ -329,7 +329,7 @@ class UserService
         <body>
             <h2>Your password has just been requested to reset. Here is your new password:</h2>
             <p>New Password:' . $passReset . '</p>
-            <h2>Please login with new password and change it soon</h2>
+            <h5>Please login with new password and change it soon</h5>
         </body>
         </html>';
         try {

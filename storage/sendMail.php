@@ -14,6 +14,7 @@ class SendMail
     private $mail_user = MAIL_USER;
     private $mail_password = MAIL_PASSWORD;
     private $mail_port = MAIL_PORT;
+    private $mail_debug = MAIL_DEBUG;
     private $phpMailer;
     public function __construct()
     {
@@ -23,7 +24,7 @@ class SendMail
     {
         try {
             //Server settings
-            $this->phpMailer->SMTPDebug = SMTP::DEBUG_OFF;
+            $this->phpMailer->SMTPDebug = $this->mail_debug;
             $this->phpMailer->isSMTP();
             $this->phpMailer->Host       = $this->mail_host;                    //Set the SMTP server to send through
             $this->phpMailer->SMTPAuth   = true;                                   //Enable SMTP authentication
