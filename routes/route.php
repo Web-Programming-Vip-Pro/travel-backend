@@ -28,13 +28,6 @@ $router->get("/country/edit", 'countryController@getEdit'); //req[id]
 $router->post("/country/edit", 'countryController@postEdit'); //req[id]
 $router->post("/country/delete", 'countryController@delete'); //req[id]
 $router->get("/country/pages.*", 'countryController@page');
-// route group category
-$router->get("/categories", 'categoryController@index');
-$router->post("/category/add", 'categoryController@postAdd');
-$router->get("/category/edit", 'categoryController@getEdit'); //req[id]
-$router->post("/category/edit", 'categoryController@postEdit'); //req[id]
-$router->get("/category/delete", 'categoryController@delete'); //req[id]
-$router->get("/category/pages", 'categoryController@page');
 // route group city
 $router->post("/city/add", 'cityController@postAdd');
 $router->post("/city/edit", 'cityController@postEdit'); //req[id]
@@ -43,13 +36,6 @@ $router->get("/city/pages.*?", 'cityController@page');
 $router->get("/city/search.*?", 'cityController@search');
 $router->get("/cities.*?", 'cityController@index');
 $router->get("/city.*?", 'cityController@get');
-// route group blog
-$router->get("/blogs", 'blogController@index');
-$router->post("/blog/add", 'blogController@postAdd');
-$router->get("/blog/edit", 'blogController@getEdit'); //req[id]
-$router->post("/blog/edit", 'blogController@postEdit'); //req[id]
-$router->get("/blog/delete", 'blogController@delete'); //req[id]
-$router->get("/blog/pages", 'blogController@page');
 // route group place
 $router->post("/place/add", 'placeController@postAdd');
 $router->post("/place/edit", 'placeController@postEdit'); //req[id]
@@ -75,7 +61,6 @@ $router->post("/review/add", 'reviewController@postAdd'); // @param id_place
 $router->get("/reports", 'reportController@index');
 $router->post("/report/add", 'reportController@postAdd'); // @param id_agency
 // route group notify
-$router->get("/notifies", 'notifyController@index');
 // search 
 $router->post("/search", 'searchController@search');
 $router->post("/city/search", 'searchController@searchInCity');
