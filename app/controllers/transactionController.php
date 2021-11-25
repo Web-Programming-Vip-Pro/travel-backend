@@ -7,31 +7,49 @@ require_once('app/services/transactionService.php');
 
 use Core\Http\BaseController;
 use App\Services\TransactionService;
-class transactionController extends BaseController{
+
+class transactionController extends BaseController
+{
     private $transactionService;
-    public function __construct(){
+    public function __construct()
+    {
         $this->transactionService = new TransactionService();
     }
     public function index()
     {
-        return $this->transactionService->list();
+        $req = $_REQUEST;
+        return $this->transactionService->list($req);
     }
-    public function postAdd(){
+
+    public function user()
+    {
+        $req = $_REQUEST;
+        return $this->transactionService->getPlacesByUserTransaction($req);
+    }
+
+    public function postAdd()
+    {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON, true); 
-        $place_id = (int)$req['place_id'];
-        return $this->transactionService->add($place_id);
-    }  
-    public function getEdit(){
+        $req = json_decode($inputJSON, true);
+        return $this->transactionService->add($req);
+    }
+    public function get()
+    {
+        $req = $_REQUEST;
+        return $this->transactionService->get($req);
+    }
+    public function getEdit()
+    {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = json_decode($inputJSON, true);
         $id = (int)$req['id'];
         return $this->transactionService->getEdit($id);
     }
-    public function postEdit(){
+    public function postEdit()
+    {
         $inputJSON = file_get_contents('php://input');
-        $req= json_decode( $inputJSON,true ); 
+        $req = json_decode($inputJSON, true);
         $id = (int)$req['id'];
-        return $this->transactionService->postEdit($id,$req);
+        return $this->transactionService->postEdit($id, $req);
     }
 }

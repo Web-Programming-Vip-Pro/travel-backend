@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+
 require_once('core/http/Container.php');
 require_once('app/models/transactionModel.php');
 require_once('app/middleware/middleware.php');
@@ -13,154 +14,161 @@ use App\Middleware\Middleware;
 use Core\Http\BaseController;
 use App\Models\TransactionModel;
 
-class TransactionService{
+class TransactionService
+{
     private $place;
     private $middleware;
     private $transaction;
     private $controller;
-    private $notify;
     public function __construct()
     {
         $this->transaction  = new TransactionModel();
         $this->controller   =  new BaseController();
         $this->place        = new PlaceModel();
         $this->middleware   = new Middleware();
-        $this->notify       = new NotifyModel();
         $this->user         = $this->middleware->handle();
     }
-    public function list(){
-        if($this->user == false){
-            return $this->container->status(401,"Unauthorized");
+
+    public function list($req)
+    {
+        $userId = isset($req['user_id']) ? (int)$req['user_id'] : -1;
+        $placeId = isset($req['place_id']) ? (int)$req['place_id'] : -1;
+        $agencyId = isset($req['agency_id']) ? (int)$req['agency_id'] : -1;
+        $status = isset($req['status']) ? json_decode($req['status']) : -1;
+        $condition_type = isset($req['condition_type']) ? $req['condition_type'] : 'and';
+        $transaction = $this->transaction->findTransaction($placeId, $userId, $agencyId, $status);
+        if ($transaction == false) {
+            $msg = 'Transaction not found';
+            return $this->controller->status(500, $msg);
         }
-        $role = $this->user->role;
-        $user_id = $this->user->id;
-        if($role == 1){
-            $result = $this->transaction->getForAcengy($user_id);
-            return $this->controller->status(200,$result);
-        }
-        if($role == 0){
-            $result = $this->transaction->getForUser($user_id);
-            return $this->controller->status(200,$result);
-        }
+        return $this->controller->status(200, $transaction);
     }
-    /**
-     * add notify for agency
-     */
-    public function add($place_id){
-        if($this->user == false){
-            return $this->controller->status(401,"Unauthorized");
+
+    public function add($req)
+    {
+        $placeId = (int)$req['place_id'];
+        $userId = (int)$req['user_id'];
+        $resultByIdPlace = $this->place->get($placeId);
+        $msgHandleId = $this->handleId($placeId, $resultByIdPlace);
+        if ($msgHandleId != false) {
+            return $this->controller->status(500, $msgHandleId);
         }
-        $resultByIdPlace = $this->place->get($place_id);
-        $msgHandleId = $this->handleId($place_id,$resultByIdPlace);
-        if($msgHandleId != false){
-            return $this->controller->status(500,$msgHandleId);
-        }
-        $data=[
-            'user_id'           => $this->user->id,
-            'place_id'          => $place_id,
+        $data = [
+            'user_id'           => $userId,
+            'place_id'          => $placeId,
             'agency_id'         => $resultByIdPlace['author_id'],
             'status_place'      => 0,
         ];
         $result = $this->transaction->create($data);
-        if($result == false){
-            $msg= 'Add transaction to database fail';
-            return $this->controller->status(500,$msg);
+        if ($result == false) {
+            $msg = 'Add transaction to database fail';
+            return $this->controller->status(500, $msg);
         }
-        $this->addNotify($this->user,$resultByIdPlace);
-        $msg= 'Add transaction to database success';
-        return $this->controller->status(200,$msg);
+        $msg = 'Add transaction to database success';
+        return $this->controller->status(200, $msg);
     }
-    public function getEdit($id){
-        if($this->user == false){
-            return $this->controller->status(401,"Unauthorized");
+    public function get($req)
+    {
+        $userId = isset($req['user_id']) ? (int)$req['user_id'] : -1;
+        $placeId = isset($req['place_id']) ? (int)$req['place_id'] : -1;
+        $agencyId = isset($req['agency_id']) ? (int)$req['agency_id'] : -1;
+        $status = isset($req['status']) ? json_decode($req['status']) : -1;
+        $condition_type = isset($req['condition_type']) ? $req['condition_type'] : 'and';
+        $transaction = $this->transaction->findTransaction($placeId, $userId, $agencyId, $status);
+        if ($transaction == false) {
+            $msg = 'Transaction not found';
+            return $this->controller->status(500, $msg);
+        }
+        return $this->controller->status(200, $transaction[0]);
+    }
+
+    public function getUserTransactions($userId, $agencyId, $status, $page, $limit)
+    {
+        $transaction = $this->transaction->get(-1, $userId, $agencyId, $status, $page, $limit);
+        return $transaction;
+    }
+
+    public function getPlacesByUserTransaction($req)
+    {
+        $userId = isset($req['user_id']) ? (int)$req['user_id'] : -1;
+        $agencyId = isset($req['agency_id']) ? (int)$req['agency_id'] : -1;
+        $status = isset($req['status']) ? json_decode($req['status']) : -1;
+        $page = isset($req['page']) ? (int)$req['page'] : 0;
+        $limit = isset($req['limit']) ? (int)$req['limit'] : 10;
+        $transactions = $this->getUserTransactions($userId, $agencyId, $status, $page, $limit);
+        if ($transactions == false) {
+            $msg = 'Transaction not found';
+            return $this->controller->status(500, $msg);
+        }
+        $places = [];
+        foreach ($transactions as $transaction) {
+            $place = $this->place->get((int)$transaction->place_id);
+            $place['status_place'] = $transaction->status_place;
+            $place['images'] = isset($place['images']) ? json_decode($place['images']) : [];
+            $places[] = $place;
+        }
+        return $this->controller->status(200, $places);
+    }
+
+    public function getEdit($id)
+    {
+        if ($this->user == false) {
+            return $this->controller->status(401, "Unauthorized");
         }
         $resultById = $this->transaction->get($id);
-        $msgHandleId = $this->handleId($id,$resultById);
-        if($msgHandleId != false){
-            return $this->controller->status(500,$msgHandleId);
+        $msgHandleId = $this->handleId($id, $resultById);
+        if ($msgHandleId != false) {
+            return $this->controller->status(500, $msgHandleId);
         }
-        return $this->controller->status(200,$resultById);
+        return $this->controller->status(200, $resultById);
     }
     /**
      * agency update status, add notify for user
      * user update status, add notify for agency
      */
-    public function postEdit($id,$req){
-        if($this->user == false){
-            return $this->controller->status(401,"Unauthorized");
+    public function postEdit($id, $req)
+    {
+        if ($this->user == false) {
+            return $this->controller->status(401, "Unauthorized");
         }
         $resultById = $this->transaction->get($id);
-        $msgHandleId = $this->handleId($id,$resultById);
-        if($msgHandleId != false){
-            return $this->controller->status(500,$msgHandleId);
+        $msgHandleId = $this->handleId($id, $resultById);
+        if ($msgHandleId != false) {
+            return $this->controller->status(500, $msgHandleId);
         }
-        if($this->user->role == 0){
+        if ($this->user->role == 0) {
             $data = [
                 'status_place'    => $req['status_place']
             ];
-            $result = $this->transaction->update($id,$data);
-            if($result == false){
+            $result = $this->transaction->update($id, $data);
+            if ($result == false) {
                 $msg =  'Update transaction fail';
-                return $this->controller->status(500,$msg);
+                return $this->controller->status(500, $msg);
             }
-            $this->editUserNotify($this->user,$resultById);
             $msg =  'Update transaction success';
-            return $this->controller->status(200,$msg);
-        }else if($this->user->role == 1){
+            return $this->controller->status(200, $msg);
+        } else if ($this->user->role == 1) {
             $data = [
                 'status_place'    => $req['status_place'],
                 'message'         => $req['message'],
             ];
-            $result = $this->transaction->update($id,$data);
-            if($result == false){
+            $result = $this->transaction->update($id, $data);
+            if ($result == false) {
                 $msg =  'Update transaction fail';
-                return $this->controller->status(500,$msg);
+                return $this->controller->status(500, $msg);
             }
             $msg =  'Update transaction success';
-            return $this->controller->status(200,$msg);
+            return $this->controller->status(200, $msg);
         }
     }
-    public function handleId($id,$result=null){
-        if($id == 0){
+    public function handleId($id, $result = null)
+    {
+        if ($id == 0) {
             return 'Id not fill in';
         }
-        if($result == null){
+        if ($result == null) {
             return  'Id not exactly';
         }
         return false;
     }
-    public function addNotify($user,$place){
-        $content = $user->name ." created transaction with place ". $place['title']; 
-        $data = [
-            'title'     => 'You have a transaction',
-            'content'   => $content,
-            'seen'      => 0,
-            'user_id'   => $place['author_id']
-        ];
-        $this->notify->create($data);
-    }
-    public function editUserNotify($user,$transaction){
-        $content = $user->name ." update status transaction with transaction id ". $transaction['id']; 
-        $data = [
-            'title'     => 'You have a new notify',
-            'content'   => $content,
-            'seen'      => 0,
-            'user_id'   => $transaction['agency_id']
-        ];
-        $this->notify->create($data);
-    }
-    public function editAgencyNotify($user,$transaction){
-        $content = $user->name ." update status transaction with transaction id ". $transaction['id']; 
-        $data = [
-            'title'     => 'You have a new notify',
-            'content'   => $content,
-            'seen'      => 0,
-            'user_id'   => $transaction['user_id']
-        ];
-        $this->notify->create($data);
-    }
 }
-
-
-
-?>
