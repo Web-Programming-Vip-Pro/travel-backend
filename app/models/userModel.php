@@ -27,10 +27,16 @@ class UserModel
         return $totalPage;
     }
 
-    public function get($id = -1, $page = 0, $limit = 20, $role = 0, $order = 'DESC')
+    public function get($id = -1, $page = 0, $limit = 20, $role = 0, $order = 'DESC', $text = null)
     {
         if ($id == -1) {
-            $sql = "SELECT * FROM $this->table WHERE role = $role ORDER BY id $order LIMIT $page, $limit";
+            // if text, search by name and email
+            $sql = '';
+            if ($text) {
+                $sql = "SELECT * FROM $this->table WHERE role = $role AND (name LIKE '%$text%' OR email LIKE '%$text%') ORDER BY id $order LIMIT $page, $limit";
+            } else {
+                $sql = "SELECT * FROM $this->table WHERE role = $role ORDER BY id $order LIMIT $page, $limit";
+            }
             return $this->conn->query($sql);
         }
         return $this->conn->getRowArray($this->table, $id);

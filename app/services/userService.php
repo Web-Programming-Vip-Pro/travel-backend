@@ -61,7 +61,8 @@ class UserService
         $limit = isset($req['limit']) ? (int)($req['limit']) : 20;
         $role = isset($req['role']) ? $req['role'] : 0;
         $order = isset($req['order']) ? $req['order'] : 'DESC';
-        $result = $this->user->get(-1, $page, $limit, $role, $order);
+        $text = isset($req['text']) ? $req['text'] : null;
+        $result = $this->user->get(-1, $page, $limit, $role, $order, $text);
         return $this->controller->status(200, $result);
     }
     public function page($req)
