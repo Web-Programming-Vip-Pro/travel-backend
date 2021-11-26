@@ -6,12 +6,12 @@ include_once('lib/database.php');
 
 use Database\DB;
 
-class ConfigModel
+class AppModel
 {
     public $conn;
     // Id of config always = 1
     private $id = 1;
-    private $table = 'tb_config';
+    private $table = 'tb_app';
     public function __construct()
     {
         $this->conn = new DB();

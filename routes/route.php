@@ -67,3 +67,5 @@ $router->post("/city/search", 'searchController@searchInCity');
 //pages
 $router->get("/pages", "pageController@index");
 $router->post("/page/update", "pageController@update");
+//app
+$router->post("/app/contact", "appController@contact");
