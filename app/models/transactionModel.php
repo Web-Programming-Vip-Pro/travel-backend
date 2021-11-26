@@ -39,8 +39,9 @@ class TransactionModel
                     $this->condition->addCondition('status_place', $status_place, '=');
                 }
             }
-            $condition = $this->condition->getCondition();
-            $sql = "SELECT * FROM $this->table WHERE $condition ORDER BY id DESC LIMIT $page, $limit";
+
+            $condition = $this->condition->getCondition() ? 'WHERE ' . $this->condition->getCondition() : '';
+            $sql = "SELECT * FROM $this->table $condition ORDER BY id DESC LIMIT $page, $limit";
             $result = $this->conn->query($sql);
             return $result;
         }
@@ -76,6 +77,17 @@ class TransactionModel
         // get transaction from place_id and user_id
         $sql = "SELECT * FROM $this->table WHERE $condition";
         $result = $this->conn->query($sql);
+        return $result;
+    }
+
+    public function count()
+    {
+        $condition = $this->condition->getCondition() ? 'WHERE ' . $this->condition->getCondition() : '';
+        $sql = "SELECT COUNT(*) as total FROM $this->table $condition";
+        $result = $this->conn->query($sql);
+        if ($result) {
+            return $result[0]->total;
+        }
         return $result;
     }
 

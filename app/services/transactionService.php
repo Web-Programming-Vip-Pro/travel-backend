@@ -4,29 +4,26 @@ namespace App\Services;
 
 require_once('core/http/Container.php');
 require_once('app/models/transactionModel.php');
-require_once('app/middleware/middleware.php');
 require_once('app/models/placeModel.php');
-require_once('app/models/notifyModel.php');
+require_once('app/models/userModel.php');
 
 use App\Models\PlaceModel;
-use App\Models\NotifyModel;
-use App\Middleware\Middleware;
 use Core\Http\BaseController;
 use App\Models\TransactionModel;
+use App\Models\UserModel;
 
 class TransactionService
 {
     private $place;
-    private $middleware;
     private $transaction;
     private $controller;
+    private $user;
     public function __construct()
     {
         $this->transaction  = new TransactionModel();
         $this->controller   =  new BaseController();
         $this->place        = new PlaceModel();
-        $this->middleware   = new Middleware();
-        $this->user         = $this->middleware->handle();
+        $this->user         = new UserModel();
     }
 
     public function list($req)
@@ -34,14 +31,35 @@ class TransactionService
         $userId = isset($req['user_id']) ? (int)$req['user_id'] : -1;
         $placeId = isset($req['place_id']) ? (int)$req['place_id'] : -1;
         $agencyId = isset($req['agency_id']) ? (int)$req['agency_id'] : -1;
-        $status = isset($req['status']) ? json_decode($req['status']) : -1;
-        $condition_type = isset($req['condition_type']) ? $req['condition_type'] : 'and';
-        $transaction = $this->transaction->findTransaction($placeId, $userId, $agencyId, $status);
-        if ($transaction == false) {
-            $msg = 'Transaction not found';
-            return $this->controller->status(500, $msg);
+        $page = isset($req['page']) ? (int)$req['page'] : 0;
+        $limit = isset($req['limit']) ? (int)$req['limit'] : 10;
+        $getPage = isset($req['getPage']) ? (int)$req['getPage'] : -1;
+        $result = $this->transaction->get(-1, $userId, $placeId, $agencyId, $page, $limit);
+        // if $result, get place name from place model; if not, return error
+        if ($result) {
+            // loop through result and get place name
+            foreach ($result as $key => $value) {
+                $placeName = $this->place->get((int)$value->place_id);
+                $result[$key]->place_title = $placeName['title'];
+                // get agency name by agency id
+                $agencyName = $this->user->get((int)$value->agency_id);
+                $result[$key]->agency_name = $agencyName['name'];
+                // get yser name by user id
+                $userName = $this->user->get((int)$value->user_id);
+                $result[$key]->user_name = $userName['name'];
+            }
+            if ($getPage) {
+                $count = $this->transaction->count();
+                $totalPage = ceil($count / $limit);
+                $result = [
+                    'total_pages' => $totalPage,
+                    'data' => $result
+                ];
+            }
+            return $this->controller->status(200, $result);
+        } else {
+            return $this->controller->status(400, 'No transaction found');
         }
-        return $this->controller->status(200, $transaction);
     }
 
     public function add($req)
@@ -57,6 +75,7 @@ class TransactionService
             'user_id'           => $userId,
             'place_id'          => $placeId,
             'agency_id'         => $resultByIdPlace['author_id'],
+            'value'            => $resultByIdPlace['price'],
             'status_place'      => 0,
         ];
         $result = $this->transaction->create($data);
@@ -73,7 +92,6 @@ class TransactionService
         $placeId = isset($req['place_id']) ? (int)$req['place_id'] : -1;
         $agencyId = isset($req['agency_id']) ? (int)$req['agency_id'] : -1;
         $status = isset($req['status']) ? json_decode($req['status']) : -1;
-        $condition_type = isset($req['condition_type']) ? $req['condition_type'] : 'and';
         $transaction = $this->transaction->findTransaction($placeId, $userId, $agencyId, $status);
         if ($transaction == false) {
             $msg = 'Transaction not found';

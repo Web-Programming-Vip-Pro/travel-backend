@@ -51,7 +51,7 @@ $router->get("/transaction/edit", 'transactionController@getEdit'); // @param id
 $router->post("/transaction/edit", 'transactionController@postEdit'); // @param  id_transaction
 $router->get("/transaction/get.*?", 'transactionController@get');
 $router->get("/transaction/user.*?", 'transactionController@user');
-$router->get("/transactions", 'transactionController@index');
+$router->get("/transactions.*?", 'transactionController@index');
 // route group wishlist
 // route group review
 $router->get("/review/user.*?", 'reviewController@user');
