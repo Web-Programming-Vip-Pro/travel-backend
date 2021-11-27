@@ -71,7 +71,10 @@ class AppService
             // sum value of all transactions
             $transactionsSum = 0;
             foreach ($transactions as $transaction) {
-                $transactionsSum += $transaction['value'];
+                // only sum if status_place =3
+                if ((int)$transaction['status_place'] == 3) {
+                    $transactionsSum += (int)$transaction['value'];
+                }
             }
             // count number of transactions
             $transactionCount = count($transactions);
@@ -88,7 +91,9 @@ class AppService
             $users = [];
             foreach ($transactions as $transaction) {
                 if ((int)$transaction['agency_id'] == $agencyId) {
-                    $transactionsSum += $transaction['value'];
+                    if ((int)$transaction['status_place'] == 3) {
+                        $transactionsSum += (int)$transaction['value'];
+                    }
                     $transactionsByAgency[] = $transaction;
                     if (!in_array($transaction['user_id'], $users)) {
                         $users[] = $transaction['user_id'];
