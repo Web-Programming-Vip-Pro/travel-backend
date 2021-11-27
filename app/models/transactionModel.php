@@ -18,6 +18,13 @@ class TransactionModel
         $this->conn = new DB();
         $this->condition = new Condition();
     }
+
+    public function getAll()
+    {
+        $result = $this->conn->getArray($this->table);
+        return $result;
+    }
+
     public function get($id = -1, $userId = -1, $agency_id = -1, $status_place = -1, $page = 0, $limit = 10)
     {
         if ($id == -1) {

@@ -23,4 +23,8 @@ class appController extends BaseController
 
         $this->appService->contact($req);
     }
+    public function stats()
+    {
+        return $this->appService->stats();
+    }
 }

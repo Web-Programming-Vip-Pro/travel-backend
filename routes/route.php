@@ -65,3 +65,4 @@ $router->get("/pages", "pageController@index");
 $router->post("/page/update", "pageController@update");
 //app
 $router->post("/app/contact", "appController@contact");
+$router->get("/app/stats", "appController@stats");
