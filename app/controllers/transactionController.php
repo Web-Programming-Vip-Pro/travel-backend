@@ -38,18 +38,10 @@ class transactionController extends BaseController
         $req = $_REQUEST;
         return $this->transactionService->get($req);
     }
-    public function getEdit()
-    {
-        $inputJSON = file_get_contents('php://input');
-        $req = json_decode($inputJSON, true);
-        $id = (int)$req['id'];
-        return $this->transactionService->getEdit($id);
-    }
     public function postEdit()
     {
         $inputJSON = file_get_contents('php://input');
         $req = json_decode($inputJSON, true);
-        $id = (int)$req['id'];
-        return $this->transactionService->postEdit($id, $req);
+        return $this->transactionService->postEdit($req);
     }
 }

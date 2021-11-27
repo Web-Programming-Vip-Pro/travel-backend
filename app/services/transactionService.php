@@ -6,11 +6,13 @@ require_once('core/http/Container.php');
 require_once('app/models/transactionModel.php');
 require_once('app/models/placeModel.php');
 require_once('app/models/userModel.php');
+require_once('storage/sendMail.php');
 
 use App\Models\PlaceModel;
 use Core\Http\BaseController;
 use App\Models\TransactionModel;
 use App\Models\UserModel;
+use Storage\SendMail;
 
 class TransactionService
 {
@@ -18,12 +20,14 @@ class TransactionService
     private $transaction;
     private $controller;
     private $user;
+    private $mail;
     public function __construct()
     {
         $this->transaction  = new TransactionModel();
         $this->controller   =  new BaseController();
         $this->place        = new PlaceModel();
         $this->user         = new UserModel();
+        $this->mail     = new SendMail();
     }
 
     public function list($req)
@@ -144,41 +148,81 @@ class TransactionService
      * agency update status, add notify for user
      * user update status, add notify for agency
      */
-    public function postEdit($id, $req)
+    public function postEdit($req)
     {
-        if ($this->user == false) {
-            return $this->controller->status(401, "Unauthorized");
-        }
+        $id = (int)$req['id'];
         $resultById = $this->transaction->get($id);
         $msgHandleId = $this->handleId($id, $resultById);
         if ($msgHandleId != false) {
             return $this->controller->status(500, $msgHandleId);
         }
-        if ($this->user->role == 0) {
-            $data = [
-                'status_place'    => $req['status_place']
-            ];
-            $result = $this->transaction->update($id, $data);
-            if ($result == false) {
-                $msg =  'Update transaction fail';
-                return $this->controller->status(500, $msg);
-            }
-            $msg =  'Update transaction success';
-            return $this->controller->status(200, $msg);
-        } else if ($this->user->role == 1) {
-            $data = [
-                'status_place'    => $req['status_place'],
-                'message'         => $req['message'],
-            ];
-            $result = $this->transaction->update($id, $data);
-            if ($result == false) {
-                $msg =  'Update transaction fail';
-                return $this->controller->status(500, $msg);
-            }
-            $msg =  'Update transaction success';
-            return $this->controller->status(200, $msg);
+        $data = [];
+        if (isset($req['status_place'])) {
+            $data['status_place'] = (int)$req['status_place'];
         }
+        if (isset($req['message'])) {
+            $data['message'] = $req['message'];
+        }
+        $result = $this->transaction->update($id, $data);
+        if ($result == false) {
+            $msg =  'Update transaction fail';
+            return $this->controller->status(500, $msg);
+        }
+        $msg =  'Update transaction success';
+        $this->sendEmailWhenTransactionUpdate($id);
+        return $this->controller->status(200, $msg);
     }
+
+    public function sendEmailWhenTransactionUpdate($id)
+    {
+        $resultById = $this->transaction->get($id);
+        $msgHandleId = $this->handleId($id, $resultById);
+        if ($msgHandleId != false) {
+            return $this->controller->status(500, $msgHandleId);
+        }
+        $transactionMessage = $resultById['message'];
+        $transactionStatus = $resultById['status_place'];
+        $status = '';
+        switch ($transactionStatus) {
+            case 0:
+                $status = 'Waiting for confirmation';
+                break;
+            case 1:
+                $status = 'Booking';
+                break;
+            case 2:
+                $status = 'Cancelled';
+                break;
+            default:
+                $status = 'Finished';
+                break;
+        }
+        $mailToUser = new SendMail();
+        $mailToAgency = new SendMail();
+        $agency = $this->user->get((int)$resultById['agency_id']);
+        $user = $this->user->get((int)$resultById['user_id']);
+        $userName = $user['name'];
+        $userEmail = $user['email'];
+        $title = 'Your booking has been updated!';
+        // email with body include transaction message, status
+        $body = '<h1>Your booking has been updated!</h1>
+                <p>Your booking has been updated to ' . $status . '</p>
+                <p>' . $transactionMessage . '</p>
+                <p>You can contact with agency ' . $agency['name'] . ' at ' . $agency['email'] . '</p>
+                <p>Thank you for using our service!</p>';
+        $mailToUser->sendMail($userEmail, $title, $body);
+        $title = 'Your booking has been updated!';
+        // email for agency with body include user name, transaction message, status and place id
+        $body = '<h1>Your booking has been updated!</h1>
+                <p>' . $userName . ' has updated booking to ' . $status . '</p>
+                <p>' . $transactionMessage . '</p>
+                <p>You can contact with user ' . $userName . ' at ' . $userEmail . '</p>
+                <p>Thank you for using our service!</p>';
+
+        $mailToAgency->sendMail($agency['email'], $title, $body);
+        return true;
+    }
+
     public function handleId($id, $result = null)
     {
         if ($id == 0) {

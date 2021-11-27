@@ -47,7 +47,6 @@ $router->get("/places.*?", 'placeController@index'); // list all place
 $router->get("/place.*?", 'placeController@index'); // list all place
 // route group transaction
 $router->post("/transaction/add", 'transactionController@postAdd'); // @param id_place
-$router->get("/transaction/edit", 'transactionController@getEdit'); // @param id_transaction
 $router->post("/transaction/edit", 'transactionController@postEdit'); // @param  id_transaction
 $router->get("/transaction/get.*?", 'transactionController@get');
 $router->get("/transaction/user.*?", 'transactionController@user');
