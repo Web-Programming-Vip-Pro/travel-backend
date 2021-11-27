@@ -46,38 +46,62 @@ class AppService
         }
     }
 
-    public function stats()
+    public function stats($req)
     {
-        // count number of users
-        $users = $this->user->getAll();
-        // get number of users with role = 1
-        $agencyCount = 0;
-        foreach ($users as $user) {
-            if ((int)$user['role'] == 1) {
-                $agencyCount++;
-            }
-        }
-        // get number of users with role = 0
-        $customerCount = 0;
-        foreach ($users as $user) {
-            if ((int)$user['role'] == 0) {
-                $customerCount++;
-            }
-        }
-        // sum value of all transactions
+        $agencyId = isset($req['agency_id']) ? (int)$req['agency_id'] : -1;
         $transactions = $this->transaction->getAll();
-        $transactionsSum = 0;
-        foreach ($transactions as $transaction) {
-            $transactionsSum += $transaction['value'];
+        // Admin
+        if ($agencyId === -1) {
+            // count number of users
+            $users = $this->user->getAll();
+            // get number of users with role = 1
+            $agencyCount = 0;
+            foreach ($users as $user) {
+                if ((int)$user['role'] == 1) {
+                    $agencyCount++;
+                }
+            }
+            // get number of users with role = 0
+            $customerCount = 0;
+            foreach ($users as $user) {
+                if ((int)$user['role'] == 0) {
+                    $customerCount++;
+                }
+            }
+            // sum value of all transactions
+            $transactionsSum = 0;
+            foreach ($transactions as $transaction) {
+                $transactionsSum += $transaction['value'];
+            }
+            // count number of transactions
+            $transactionCount = count($transactions);
+            $result = [
+                'totalAgencies' => $agencyCount,
+                'totalUsers' => $customerCount,
+                'totalTransactions' => $transactionCount,
+                'totalRevenue' => $transactionsSum
+            ];
+        } else {
+            // count number of transactions by agency_id and sum value of all transactions and count total users (check duplicate by user_id)
+            $transactionsByAgency = [];
+            $transactionsSum = 0;
+            $users = [];
+            foreach ($transactions as $transaction) {
+                if ((int)$transaction['agency_id'] == $agencyId) {
+                    $transactionsSum += $transaction['value'];
+                    $transactionsByAgency[] = $transaction;
+                    if (!in_array($transaction['user_id'], $users)) {
+                        $users[] = $transaction['user_id'];
+                    }
+                }
+            }
+
+            $result = [
+                'totalTransactions' => count($transactionsByAgency),
+                'totalRevenue' => $transactionsSum,
+                'totalUsers' => count($users)
+            ];
         }
-        // count number of transactions
-        $transactionCount = count($transactions);
-        $result = [
-            'totalAgencies' => $agencyCount,
-            'totalUsers' => $customerCount,
-            'totalTransactions' => $transactionCount,
-            'totalRevenue' => $transactionsSum
-        ];
         return $this->container->status(200, $result);
     }
 }

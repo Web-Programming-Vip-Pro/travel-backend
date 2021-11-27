@@ -25,6 +25,7 @@ class appController extends BaseController
     }
     public function stats()
     {
-        return $this->appService->stats();
+        $req = $_REQUEST;
+        return $this->appService->stats($req);
     }
 }
