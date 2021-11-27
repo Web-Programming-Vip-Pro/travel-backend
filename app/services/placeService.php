@@ -46,7 +46,8 @@ class PlaceService
         $order = isset($req['order']) ? $req['order'] : 'recent';
         $city_id = isset($req['city_id']) ? $req['city_id'] : -1;
         $text = isset($req['text']) ? $req['text'] : null;
-        $result = $this->place->get(-1, $page, $limit, $type, $city_id, $order, $text);
+        $author_id = isset($req['author_id']) ? $req['author_id'] : -1;
+        $result = $this->place->get(-1, $page, $limit, $type, $city_id, $order, $text, $author_id);
         if ($result) {
             foreach ($result as $key => $value) {
                 $city = $this->city->get((int)$value->city_id);
@@ -93,7 +94,8 @@ class PlaceService
         $type = isset($req['type']) ? $req['type'] : -1;
         $limit = isset($req['limit']) ? $req['limit'] : 20;
         $text = isset($req['text']) ? $req['text'] : null;
-        $totalPlaces = $this->place->countPlaces($type, $text);
+        $author_id = isset($req['author_id']) ? $req['author_id'] : -1;
+        $totalPlaces = $this->place->countPlaces($type, $text, $author_id);
         $totalPages = ceil($totalPlaces / $limit);
         return $this->container->status(200, $totalPages);
     }

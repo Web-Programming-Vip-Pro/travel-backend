@@ -19,7 +19,7 @@ class PlaceModel
     {
         return $this->conn->getArray($this->table);
     }
-    public function get($id = -1, $page = 0, $limit = 20, $type = -1, $city_id = -1, $order = 'recent', $text = null)
+    public function get($id = -1, $page = 0, $limit = 20, $type = -1, $city_id = -1, $order = 'recent', $text = null, $author_id = -1)
     {
         $this->_WHERE = '';
         $ORDER = "";
@@ -47,6 +47,9 @@ class PlaceModel
             if ($text != null) {
                 $this->addWhere("title LIKE '%$text%'");
             }
+            if ($author_id != -1) {
+                $this->addWhere("author_id = $author_id");
+            }
             $sql = "SELECT * FROM $this->table $this->_WHERE ORDER BY $ORDER LIMIT $page, $limit";
             $data = $this->conn->query($sql);
             return $data;
@@ -54,7 +57,7 @@ class PlaceModel
         return $this->conn->getRowArray($this->table, $id);
     }
 
-    public function countPlaces($type = -1, $text = null)
+    public function countPlaces($type = -1, $text = null, $author_id = -1)
     {
         $this->_WHERE = '';
         if ($type != -1) {
@@ -63,6 +66,9 @@ class PlaceModel
         // if text, search by title or location of place but not both
         if ($text != null) {
             $this->addWhere("title LIKE '%$text%' AND location LIKE '%$text%'");
+        }
+        if ($author_id != -1) {
+            $this->addWhere("author_id = $author_id");
         }
         $sql = "SELECT COUNT(*) as count FROM $this->table $this->_WHERE";
         $data = $this->conn->query($sql);
