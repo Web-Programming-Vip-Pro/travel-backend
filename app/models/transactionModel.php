@@ -25,12 +25,16 @@ class TransactionModel
         return $result;
     }
 
-    public function get($id = -1, $userId = -1, $agency_id = -1, $status_place = -1, $page = 0, $limit = 10)
+    public function get($id = -1, $userId = -1, $place_id = -1, $agency_id = -1, $status_place = -1, $page = 0, $limit = 10)
     {
         if ($id == -1) {
             // if user_id add condition
             if ($userId != -1) {
                 $this->condition->addCondition('user_id', $userId);
+            }
+            // if place_id add condition
+            if ($place_id != -1) {
+                $this->condition->addCondition('place_id', $place_id);
             }
             // if agency_id add condition
             if ($agency_id != -1) {

@@ -38,7 +38,7 @@ class TransactionService
         $page = isset($req['page']) ? (int)$req['page'] : 0;
         $limit = isset($req['limit']) ? (int)$req['limit'] : 10;
         $getPage = isset($req['getPage']) ? (int)$req['getPage'] : -1;
-        $result = $this->transaction->get(-1, $userId, $placeId, $agencyId, $page, $limit);
+        $result = $this->transaction->get(-1, $userId, $placeId, $agencyId, -1, $page, $limit);
         // if $result, get place name from place model; if not, return error
         if ($result) {
             // loop through result and get place name
