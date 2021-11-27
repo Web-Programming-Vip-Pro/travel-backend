@@ -10,14 +10,13 @@ $router->post("/user/updateInfo", 'userController@updateInfo'); // req[id]
 $router->post('/user/updatePassword', 'userController@updatePassword');
 $router->post("/user/delete", 'userController@delete'); // req[id]
 $router->post('/user/forget', 'userController@forget');
-// get pages user
 $router->get("/user/pages.*?", 'userController@page');
 // wishlist
 $router->post("/wishlist/toggle", 'wishlistController@toggle'); // @param id_place
 $router->post("/wishlist/delete", 'wishlistController@getEdit'); // @param id_wishlist
 $router->get("/wishlist/isInWishList.*?", 'wishlistController@isInWishList'); // @param id_user
 $router->get("/wishlist.*?", 'wishlistController@index'); // @param id_user
-
+// authentication
 $router->post('/login', 'userController@login');
 $router->post('/register', 'userController@register');
 // route group "/country"
@@ -56,9 +55,7 @@ $router->get("/transactions.*?", 'transactionController@index');
 $router->get("/review/user.*?", 'reviewController@user');
 $router->get("/review/place.*?", 'reviewController@index'); // @param id_place
 $router->post("/review/add", 'reviewController@postAdd'); // @param id_place
-// route group report
-$router->get("/reports", 'reportController@index');
-$router->post("/report/add", 'reportController@postAdd'); // @param id_agency
+$router->get('/review/check.*?', 'reviewController@check');
 // route group notify
 // search 
 $router->post("/search", 'searchController@search');

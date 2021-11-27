@@ -29,4 +29,10 @@ class reviewController extends BaseController
         $req = json_decode($inputJSON, true);
         return $this->reviewService->add($req);
     }
+
+    public function check()
+    {
+        $req = $_REQUEST;
+        return $this->reviewService->check($req);
+    }
 }

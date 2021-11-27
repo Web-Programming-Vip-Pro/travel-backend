@@ -127,6 +127,7 @@ class TransactionService
             $place = $this->place->get((int)$transaction->place_id);
             $place['status_place'] = $transaction->status_place;
             $place['images'] = isset($place['images']) ? json_decode($place['images']) : [];
+            $place['transaction'] = $transaction;
             $places[] = $place;
         }
         return $this->controller->status(200, $places);
