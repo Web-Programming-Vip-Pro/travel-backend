@@ -96,6 +96,13 @@ class PlaceModel
         return $result;
     }
 
+    public function getByAuthorId($author_id)
+    {
+        $sql = "SELECT * FROM $this->table WHERE author_id = $author_id";
+        $data = $this->conn->query($sql);
+        return $data;
+    }
+
     public function create($data)
     {
         return $this->conn->insert($this->table, $data);

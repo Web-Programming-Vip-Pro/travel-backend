@@ -22,6 +22,12 @@ class reviewController extends BaseController
         return $this->reviewService->list($req);
     }
 
+    public function getByPlace()
+    {
+        $req = $_REQUEST;
+        return $this->reviewService->getByPlace($req);
+    }
+
     // add review with place_id
     public function postAdd()
     {

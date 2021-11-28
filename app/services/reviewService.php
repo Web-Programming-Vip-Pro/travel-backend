@@ -36,6 +36,65 @@ class ReviewService
 
     public function list($req)
     {
+        $page = isset($req['page']) ? (int)$req['page'] : 0;
+        $limit = isset($req['limit']) ? (int)$req['limit'] : 20;
+        $place_id = isset($req['place_id']) ? (int)$req['place_id'] : -1;
+        $user_id = isset($req['user_id']) ? (int)$req['user_id'] : -1;
+        $agency_id = isset($req['agency_id']) ? (int)$req['agency_id'] : -1;
+        $order = isset($req['order']) ? $req['order'] : 'recent';
+        if ($agency_id !== -1) {
+            // get all places by agency_id
+            $places = $this->place->getByAuthorId($agency_id);
+            // get array place_id from places
+            $place_ids = array_column($places, 'id');
+            // count all reviews by place_id
+            $total = $this->review->countByPlaceId($place_ids);
+            // loops through all places and get all reviews
+            $reviews = [];
+            foreach ($places as $place) {
+                $reviewsInPlace = $this->review->getByPlaceId((int)$place->id, $page, $limit, $order);
+                if ($reviewsInPlace) {
+                    $reviews = array_merge($reviews, $reviewsInPlace);
+                    // add name of place to each review
+                    foreach ($reviewsInPlace as $review) {
+                        $review->place_title = $place->title;
+                    }
+                    // get user name from user_id
+                    foreach ($reviews as $key => $value) {
+                        $user = $this->getUserInfo((int)$value->user_id);
+                        $reviews[$key]->user = $user;
+                    }
+                }
+            }
+            $totalPages = ceil($total / $limit);
+            // limit reviews by page, limit
+            $reviews = array_slice($reviews, $page * $limit, $limit);
+            return $this->controller->status(200, [
+                'total' => $totalPages, 'reviews' => $reviews
+            ]);
+        }
+        $reviews = $this->review->get(-1, $place_id, $user_id, $page, $limit, $order);
+        $total = $this->review->countAll();
+        // if result, loop through and get user info
+        if ($reviews) {
+            foreach ($reviews as $key => $value) {
+                $user = $this->getUserInfo((int)$value->user_id);
+                $reviews[$key]->user = $user;
+            }
+            // loop through and get place title
+            foreach ($reviews as $key => $value) {
+                $place = $this->place->get((int)$value->place_id);
+                $reviews[$key]->place_title = $place['title'];
+            }
+        }
+        $totalPages = ceil($total / $limit);
+        return $this->controller->status(200, [
+            'total' => $totalPages, 'reviews' => $reviews
+        ]);
+    }
+
+    public function getByPlace($req)
+    {
         $id = (int)$req['id'];
         $page = isset($req['page']) ? (int)$req['page'] : 0;
         $limit = isset($req['limit']) ? (int)$req['limit'] : 20;

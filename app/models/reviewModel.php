@@ -15,9 +15,24 @@ class ReviewModel
         $this->conn = new DB();
     }
 
-    public function get($id = -1, $place_id = -1, $user_id = -1)
+    public function get($id = -1, $place_id = -1, $user_id = -1, $page = 0, $limit = 10, $order = 'recent')
     {
-        $sql = "SELECT * FROM $this->table WHERE 1";
+        $ORDER = 'ORDER BY';
+        switch ($order) {
+            case 'recent':
+                $ORDER .= ' id DESC';
+                break;
+            case 'oldest':
+                $ORDER .= ' id ASC';
+                break;
+            case 'most-rated':
+                $ORDER .= ' rate DESC';
+                break;
+            case 'least-rated':
+                $ORDER .= ' rate ASC';
+                break;
+        }
+        $sql = "SELECT * FROM $this->table WHERE 1 ";
         if ($id != -1) {
             $sql .= " AND id = $id";
         }
@@ -27,29 +42,48 @@ class ReviewModel
         if ($user_id != -1) {
             $sql .= " AND user_id = $user_id";
         }
+        $sql .= "$ORDER LIMIT $page, $limit";
         $result = $this->conn->query($sql);
         return $result;
     }
 
     public function getByPlaceId($id, $page = 0, $limit = 20, $order = 'recent')
     {
-        $ORDER = '';
+        $ORDER = 'ORDER BY';
         switch ($order) {
             case 'recent':
-                $ORDER = 'ORDER BY id DESC';
+                $ORDER .= ' id DESC';
                 break;
             case 'oldest':
-                $ORDER = 'ORDER BY id ASC';
+                $ORDER .= ' id ASC';
                 break;
             case 'most-rated':
-                $ORDER = 'ORDER BY rate DESC';
+                $ORDER .= ' rate DESC';
                 break;
             case 'least-rated':
-                $ORDER = 'ORDER BY rate ASC';
+                $ORDER .= ' rate ASC';
                 break;
         }
         $sql = "SELECT * FROM $this->table WHERE place_id = $id $ORDER LIMIT $page, $limit";
         return $this->conn->query($sql);
+    }
+
+    public function countByPlaceId($id)
+    {
+        // id can either be number or array
+        if (is_array($id)) {
+            $id = implode(',', $id);
+        }
+        $sql = "SELECT COUNT(*) AS count FROM $this->table WHERE place_id IN ($id)";
+        $result = $this->conn->query($sql);
+        return $result[0]->count;
+    }
+
+    public function countAll()
+    {
+        $sql = "SELECT COUNT(*) AS count FROM $this->table";
+        $result = $this->conn->query($sql);
+        return $result[0]->count;
     }
 
     public function create($data)
