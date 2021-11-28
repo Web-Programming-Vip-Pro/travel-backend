@@ -204,7 +204,9 @@ class UserService
         if (isset($req['image_cover'])) {
             $data['image_cover']  = $req['image_cover'];
         }
-        $data['social'] = isset($req['social']) ? json_encode($req['social']) : null;
+        if (isset($req['social'])) {
+            $data['social'] = json_encode($req['social']);
+        }
         $user = $this->user->get($id);
         // verify password
         if (!password_verify($req['password'], $user['password'])) {
