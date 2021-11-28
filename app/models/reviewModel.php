@@ -86,6 +86,15 @@ class ReviewModel
         return $result[0]->count;
     }
 
+    public function delete($id)
+    {
+        $result = $this->conn->delete($this->table, $id);
+        if ($result == false) {
+            return false;
+        }
+        return true;
+    }
+
     public function create($data)
     {
         return $this->conn->insert($this->table, $data);

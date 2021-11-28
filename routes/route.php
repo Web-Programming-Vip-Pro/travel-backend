@@ -56,6 +56,7 @@ $router->get("/review/user.*?", 'reviewController@user');
 $router->get("/review/place.*?", 'reviewController@getByPlace'); // @param id_place
 $router->post("/review/add", 'reviewController@postAdd'); // @param id_place
 $router->get('/review/check.*?', 'reviewController@check');
+$router->post('/review/delete', 'reviewController@delete');
 $router->get('/reviews.*?', 'reviewController@index');
 // route group notify
 // search 

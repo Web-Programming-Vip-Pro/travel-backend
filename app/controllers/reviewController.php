@@ -22,6 +22,13 @@ class reviewController extends BaseController
         return $this->reviewService->list($req);
     }
 
+    public function delete()
+    {
+        $inputJSON = file_get_contents('php://input');
+        $req = json_decode($inputJSON, TRUE);
+        return $this->reviewService->delete($req);
+    }
+
     public function getByPlace()
     {
         $req = $_REQUEST;

@@ -183,6 +183,35 @@ class ReviewService
         return $this->controller->status(500, 'User has not finished booking this place');
     }
 
+    public function delete($req)
+    {
+        $id = (int)$req['id'];
+        // check if review exist
+        $review = $this->review->get($id);
+        if (!$review) {
+            return $this->controller->status(500, 'Review not found');
+        }
+        // get place of review and update stars (by sum all rate of reviews and divide by number of reviews)
+        $place = $this->place->get((int)$review['place_id']);
+        $dataPlace = [
+            'reviews'   => $place['reviews'] - 1
+        ];
+        if ($place['stars'] == 0.0) {
+            $dataPlace['stars'] = 0.0;
+        } else {
+            $dataPlace['stars'] =  (float)($place['stars'] - $review['rate']) / ($place['reviews'] - 1);
+        }
+
+        $result = $this->review->delete($id);
+        if ($result == false) {
+            $msg = 'Delete review fail';
+            return $this->controller->status(500, $msg);
+        }
+        $msg = 'Delete review success';
+        //
+        return $this->controller->status(200, $msg);
+    }
+
     public function handleValidator($req)
     {
         $msgs = $this->validate->add($req);
