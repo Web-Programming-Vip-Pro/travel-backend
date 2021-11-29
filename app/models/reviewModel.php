@@ -42,7 +42,7 @@ class ReviewModel
         if ($user_id != -1) {
             $sql .= " AND user_id = $user_id";
         }
-        $sql .= "$ORDER LIMIT $page, $limit";
+        $sql .= " $ORDER LIMIT $page, $limit";
         $result = $this->conn->query($sql);
         return $result;
     }
