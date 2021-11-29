@@ -55,6 +55,18 @@ class UserService
         // when accessed,get data users
         return $this->controller->status(200, $jwt);
     }
+
+    public function getUser($req)
+    {
+        $id = (int)$req['id'];
+        $role = isset($req['role']) ? (int)$req['role'] : 0;
+        $user = $this->user->get($id, 0, $role, 1);
+        if ($user == null) {
+            $msg = 'User not found';
+            return $this->controller->status(404, $msg);
+        }
+        return $this->controller->status(200, $user);
+    }
     public function list($req)
     {
         $page = isset($req['page']) ? (int)($req['page']) : 0;

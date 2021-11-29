@@ -27,6 +27,11 @@ class userController extends BaseController
         $req = $_REQUEST;
         return $this->userService->page($req);
     }
+    public function getUser()
+    {
+        $req = $_REQUEST;
+        return $this->userService->getUser($req);
+    }
 
     public function update()
     {

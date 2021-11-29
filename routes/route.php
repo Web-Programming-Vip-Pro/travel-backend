@@ -2,6 +2,7 @@
 // route group "/user" 
 $router->get("/user", 'userController@index'); // get jwt
 $router->get("/users.*?", 'userController@list');
+$router->get("/user/get.*?", 'userController@getUser');
 $router->post("/user/add", 'userController@postAdd');
 $router->get("/user/edit", 'userController@getEdit'); //req[id]
 $router->post("/user/edit", 'userController@postEdit'); // req[id]
