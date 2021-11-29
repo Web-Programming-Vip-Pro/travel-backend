@@ -106,7 +106,7 @@ class TransactionService
 
     public function getUserTransactions($userId, $agencyId, $status, $page, $limit)
     {
-        $transaction = $this->transaction->get(-1, $userId, $agencyId, $status, $page, $limit);
+        $transaction = $this->transaction->get(-1, $userId, -1, $agencyId, $status, $page, $limit);
         return $transaction;
     }
 
